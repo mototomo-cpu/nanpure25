@@ -96,10 +96,35 @@ body {
   opacity: 0; animation: fadeUp 0.6s 1.05s ease forwards;
 }
 .op-start-btn:hover { background: #333; }
+.op-start-btn-sub {
+  width: 100%; max-width: 280px; padding: 13px;
+  background: transparent; color: #1a1a1a;
+  border: 1.5px solid #1a1a1a; border-radius: 8px;
+  font-family: 'Noto Serif JP', serif; font-size: 14px; font-weight: 300; letter-spacing: 0.2em;
+  cursor: pointer; transition: all 0.2s; margin-top: 12px;
+  opacity: 0; animation: fadeUp 0.6s 1.2s ease forwards;
+}
+.op-start-btn-sub:hover { background: #1a1a1a; color: #f7f6f3; }
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+/* 通常版 100問グリッド */
+.pz-grid-normal {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 1rem;
+}
+.pz-btn-normal {
+  aspect-ratio: 1; border-radius: 8px; border: 1.5px solid #e0ddd8;
+  background: #fff; cursor: pointer; position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-family: 'DM Mono', monospace; font-size: 12px; color: #888;
+  transition: all 0.15s;
+}
+.pz-btn-normal:hover { border-color: #aaa; background: #f7f6f3; }
+.pz-btn-normal.cleared { background: #1a1a1a; border-color: #1a1a1a; color: #fff; }
+.pz-btn-normal.in-progress { border-color: #888; }
+.pz-btn-normal .pz-chk-sm { position: absolute; top: 2px; right: 4px; font-size: 8px; }
 
 /* ════════════════════════════════
    LIST SCREEN
@@ -328,6 +353,7 @@ body {
     </div>
     <div class="op-date" id="opDate"></div>
     <button class="op-start-btn" id="opStartBtn">体験版を遊ぶ</button>
+    <button class="op-start-btn-sub" id="opNormalBtn">通常版を遊ぶ</button>
   </div>
 
   <!-- ════ DIFF SELECT ════ -->
@@ -511,6 +537,9 @@ function generatePuzzle(diff, rng) {
 // Build 25 puzzles (diff 1×5, 2×5 ... 5×5)
 // seeded by today's date so all users get same puzzles
 // ════════════════════════════════════════
+let currentMode = 'trial'; // 'trial' | 'normal'
+let NORMAL_CACHE = {};    // diff → [{diff, idx, puzzle, solution}]
+
 let PUZZLES = []; // [{diff, puzzle, solution}]
 let PROGRESS = {}; // key="d{diff}-{idx}" val={cleared, time, errors}
 
@@ -519,7 +548,6 @@ function buildDailyPuzzles() {
   const base = dateSeed();
   for (let diff = 1; diff <= 5; diff++) {
     for (let i = 0; i < 5; i++) {
-      // unique seed per puzzle
       const seed = (base ^ (diff * 1000 + i) * 0x9E3779B9) >>> 0;
       const rng = mulberry32(seed);
       const { puzzle, solution } = generatePuzzle(diff, rng);
@@ -528,24 +556,46 @@ function buildDailyPuzzles() {
   }
 }
 
+// 通常版：指定難易度の100問を生成（キャッシュ付き）
+function buildNormalPuzzlesForDiff(diff) {
+  if (NORMAL_CACHE[diff]) return NORMAL_CACHE[diff];
+  const puzzles = [];
+  for (let i = 0; i < 100; i++) {
+    const seed = (0xC0DE0000 ^ (diff * 9973 + i + 1) * 0x9E3779B9) >>> 0;
+    const rng = mulberry32(seed);
+    const { puzzle, solution } = generatePuzzle(diff, rng);
+    puzzles.push({ diff, idx: i, puzzle, solution });
+  }
+  NORMAL_CACHE[diff] = puzzles;
+  return puzzles;
+}
+
 function progressKey(diff, idx) { return `d${diff}-${idx}`; }
 
 function loadProgress() {
   try {
-    const saved = localStorage.getItem('nanpure100_progress');
-    if (!saved) return {};
-    const data = JSON.parse(saved);
-    // reset if different day
-    if (data.date !== todayStr()) return {};
-    return data.progress || {};
+    if (currentMode === 'normal') {
+      const saved = localStorage.getItem('nanpure100_normal');
+      return saved ? JSON.parse(saved) : {};
+    } else {
+      const saved = localStorage.getItem('nanpure100_progress');
+      if (!saved) return {};
+      const data = JSON.parse(saved);
+      if (data.date !== todayStr()) return {};
+      return data.progress || {};
+    }
   } catch { return {}; }
 }
 
 function saveProgress() {
-  localStorage.setItem('nanpure100_progress', JSON.stringify({
-    date: todayStr(),
-    progress: PROGRESS
-  }));
+  if (currentMode === 'normal') {
+    localStorage.setItem('nanpure100_normal', JSON.stringify(PROGRESS));
+  } else {
+    localStorage.setItem('nanpure100_progress', JSON.stringify({
+      date: todayStr(),
+      progress: PROGRESS
+    }));
+  }
 }
 
 // ════════════════════════════════════════
@@ -579,9 +629,18 @@ function showScreen(id) {
     g.appendChild(cell);
   }
 
-  // 体験版を遊ぶ → 難易度選択画面へ
+  // 体験版を遊ぶ
   document.getElementById('opStartBtn').addEventListener('click', () => {
+    currentMode = 'trial';
     buildDailyPuzzles();
+    PROGRESS = loadProgress();
+    showDiffScreen();
+  });
+
+  // 通常版を遊ぶ
+  document.getElementById('opNormalBtn').addEventListener('click', () => {
+    currentMode = 'normal';
+    PUZZLES = [];
     PROGRESS = loadProgress();
     showDiffScreen();
   });
@@ -601,9 +660,19 @@ function showDiffScreen() {
 function renderDiffButtons() {
   const list = document.getElementById('diffBtnList');
   list.innerHTML = '';
+  const total = currentMode === 'normal' ? 100 : 5;
   for (let diff = 1; diff <= 5; diff++) {
-    const puzzlesOfDiff = PUZZLES.filter(p => p.diff === diff);
-    const clearedCount = puzzlesOfDiff.filter(p => PROGRESS[progressKey(p.diff, p.idx)]?.cleared).length;
+    let clearedCount;
+    if (currentMode === 'normal') {
+      // PROMGRESSから直接カウント（パズル未生成でもOK）
+      clearedCount = 0;
+      for (let i = 0; i < 100; i++) {
+        if (PROGRESS[progressKey(diff, i)]?.cleared) clearedCount++;
+      }
+    } else {
+      const puzzlesOfDiff = PUZZLES.filter(p => p.diff === diff);
+      clearedCount = puzzlesOfDiff.filter(p => PROGRESS[progressKey(p.diff, p.idx)]?.cleared).length;
+    }
     const btn = document.createElement('button');
     btn.className = 'diff-btn';
     btn.innerHTML = `
@@ -611,7 +680,7 @@ function renderDiffButtons() {
         <div class="diff-btn-num">${diff}</div>
         <span class="diff-btn-name">${DIFF_NAMES[diff]}</span>
       </div>
-      <span class="diff-btn-badge ${clearedCount===5?'done':''}">${clearedCount} / 5</span>
+      <span class="diff-btn-badge ${clearedCount===total?'done':''}">${clearedCount} / ${total}</span>
     `;
     btn.addEventListener('click', () => showListScreen(diff));
     list.appendChild(btn);
@@ -626,34 +695,63 @@ document.getElementById('dhBack').addEventListener('click', () => showScreen('sc
 function showListScreen(diff) {
   currentDiff = diff;
   showScreen('scr-list');
-  document.getElementById('listDateBadge').textContent = dateLabel();
+  document.getElementById('listDateBadge').textContent =
+    currentMode === 'normal' ? '通常版' : dateLabel();
   document.getElementById('listDiffTitle').textContent = `難易度${diff}　${DIFF_NAMES[diff]}`;
+
+  // 通常版：対象難易度のパズルを生成してPUZZLESにセット
+  if (currentMode === 'normal') {
+    const normalPuzzles = buildNormalPuzzlesForDiff(diff);
+    // 現在の難易度分だけ置き換え
+    PUZZLES = PUZZLES.filter(p => p.diff !== diff).concat(normalPuzzles);
+  }
   renderListBody();
 }
 
 function renderListBody() {
   const body = document.getElementById('listBody');
   body.innerHTML = '';
-  const grid = document.createElement('div');
-  grid.className = 'puzzle-grid';
-  const puzzlesOfDiff = PUZZLES.filter(p => p.diff === currentDiff);
-  puzzlesOfDiff.forEach((pz, i) => {
-    const key = progressKey(pz.diff, pz.idx);
-    const prog = PROGRESS[key];
-    const btn = document.createElement('button');
-    btn.className = 'pz-btn' + (prog?.cleared ? ' cleared' : prog ? ' in-progress' : '');
-    const timeStr = prog?.cleared && prog.time
-      ? (() => { const m=Math.floor(prog.time/60),s=prog.time%60; return m+':'+String(s).padStart(2,'0'); })()
-      : '';
-    btn.innerHTML = `
-      <span class="pz-num">${String(i+1).padStart(2,'0')}</span>
-      <span class="pz-status">${prog?.cleared ? timeStr : prog ? '途中' : ''}</span>
-      ${prog?.cleared ? '<span class="pz-check">✓</span>' : ''}
-    `;
-    btn.addEventListener('click', () => startGame(pz.diff, pz.idx));
-    grid.appendChild(btn);
-  });
-  body.appendChild(grid);
+
+  if (currentMode === 'normal') {
+    // 5列×20行のコンパクトグリッド
+    const grid = document.createElement('div');
+    grid.className = 'pz-grid-normal';
+    for (let i = 0; i < 100; i++) {
+      const key = progressKey(currentDiff, i);
+      const prog = PROGRESS[key];
+      const btn = document.createElement('button');
+      btn.className = 'pz-btn-normal' + (prog?.cleared ? ' cleared' : prog ? ' in-progress' : '');
+      btn.innerHTML = `
+        <span>${String(i+1).padStart(2,'0')}</span>
+        ${prog?.cleared ? '<span class="pz-chk-sm">✓</span>' : ''}
+      `;
+      btn.addEventListener('click', () => startGame(currentDiff, i));
+      grid.appendChild(btn);
+    }
+    body.appendChild(grid);
+  } else {
+    // 体験版：既存の5問レイアウト
+    const grid = document.createElement('div');
+    grid.className = 'puzzle-grid';
+    const puzzlesOfDiff = PUZZLES.filter(p => p.diff === currentDiff);
+    puzzlesOfDiff.forEach((pz, i) => {
+      const key = progressKey(pz.diff, pz.idx);
+      const prog = PROGRESS[key];
+      const btn = document.createElement('button');
+      btn.className = 'pz-btn' + (prog?.cleared ? ' cleared' : prog ? ' in-progress' : '');
+      const timeStr = prog?.cleared && prog.time
+        ? (() => { const m=Math.floor(prog.time/60),s=prog.time%60; return m+':'+String(s).padStart(2,'0'); })()
+        : '';
+      btn.innerHTML = `
+        <span class="pz-num">${String(i+1).padStart(2,'0')}</span>
+        <span class="pz-status">${prog?.cleared ? timeStr : prog ? '途中' : ''}</span>
+        ${prog?.cleared ? '<span class="pz-check">✓</span>' : ''}
+      `;
+      btn.addEventListener('click', () => startGame(pz.diff, pz.idx));
+      grid.appendChild(btn);
+    });
+    body.appendChild(grid);
+  }
 }
 
 document.getElementById('lhBack').addEventListener('click', () => showDiffScreen());
@@ -702,7 +800,10 @@ function startGame(diff, idx) {
 
   // header
   document.getElementById('ghTitle').textContent = `難易度${diff}　${DIFF_NAMES[diff]}`;
-  document.getElementById('ghPager').textContent = `${String(idx+1).padStart(2,'0')} / 05`;
+  const total = currentMode === 'normal' ? 100 : 5;
+  const padLen = currentMode === 'normal' ? 3 : 2;
+  const totalStr = currentMode === 'normal' ? '100' : '05';
+  document.getElementById('ghPager').textContent = `${String(idx+1).padStart(padLen,'0')} / ${totalStr}`;
   document.getElementById('errors').textContent = errorCount;
 
   clearInterval(timerInt);
@@ -741,16 +842,27 @@ function goList() {
 
 function playNext() {
   document.getElementById('winOverlay').classList.remove('show');
-  // find next uncleared puzzle in same difficulty
-  const sameDiff = PUZZLES.filter(p => {
-    const k = progressKey(p.diff, p.idx);
-    return p.diff === currentPuzzleDiff && p.idx > currentPuzzleIdx && !PROGRESS[k]?.cleared;
-  });
-  if (sameDiff.length) {
-    startGame(sameDiff[0].diff, sameDiff[0].idx);
-  } else {
-    // no more in this diff, go back to problem list
+  if (currentMode === 'normal') {
+    // 通常版：同じ難易度の次の未クリア問題を探す（100問の中から）
+    const maxIdx = 99;
+    for (let i = currentPuzzleIdx + 1; i <= maxIdx; i++) {
+      if (!PROGRESS[progressKey(currentPuzzleDiff, i)]?.cleared) {
+        startGame(currentPuzzleDiff, i);
+        return;
+      }
+    }
     goList();
+  } else {
+    // 体験版：同じ難易度の次の未クリア問題
+    const sameDiff = PUZZLES.filter(p => {
+      const k = progressKey(p.diff, p.idx);
+      return p.diff === currentPuzzleDiff && p.idx > currentPuzzleIdx && !PROGRESS[k]?.cleared;
+    });
+    if (sameDiff.length) {
+      startGame(sameDiff[0].diff, sameDiff[0].idx);
+    } else {
+      goList();
+    }
   }
 }
 
@@ -1031,7 +1143,16 @@ function checkWin() {
   const m = Math.floor(timerSec/60), s = timerSec%60;
   document.getElementById('winTime').textContent = `タイム ${m}:${String(s).padStart(2,'0')}　ミス ${errorCount}回`;
   // hide "次の問題" if no more
-  const hasNext = PUZZLES.some(p => !PROGRESS[progressKey(p.diff, p.idx)]?.cleared);
+  let hasNext;
+  if (currentMode === 'normal') {
+    // 同じ難易度の残りを確認
+    hasNext = false;
+    for (let i = currentPuzzleIdx + 1; i < 100; i++) {
+      if (!PROGRESS[progressKey(currentPuzzleDiff, i)]?.cleared) { hasNext = true; break; }
+    }
+  } else {
+    hasNext = PUZZLES.some(p => !PROGRESS[progressKey(p.diff, p.idx)]?.cleared);
+  }
   document.getElementById('winNextBtn').style.display = hasNext ? '' : 'none';
   document.getElementById('winContent').style.opacity = '0';
   const fw = document.getElementById('fireworksCanvas');
