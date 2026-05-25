@@ -263,54 +263,6 @@ body {
 .win-btn.secondary { background: #fff; color: #1a1a1a; }
 .win-btn.secondary:hover { background: #f0ede8; }
 
-.win-btn.ranking { background: #fff; color: #185FA5; border-color: #185FA5; }
-.win-btn.ranking:hover { background: #f0f6ff; }
-
-/* ════════════════════════════════
-   RANKING SCREEN
-════════════════════════════════ */
-#scr-ranking { background: #f7f6f3; overflow-y: auto; }
-.ranking-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0.75rem 1.25rem;
-  border-bottom: 1px solid #e8e5e0;
-  position: sticky; top: 0; background: #f7f6f3; z-index: 10;
-}
-.rk-back {
-  font-size: 14px; color: #888; cursor: pointer;
-  background: none; border: none; font-family: 'Noto Serif JP', serif;
-  letter-spacing: 0.05em;
-}
-.rk-title { font-size: 16px; font-weight: 300; letter-spacing: 0.15em; color: #1a1a1a; }
-.rk-date { font-size: 10px; font-family: 'DM Mono', monospace; color: #aaa; }
-.rk-diff-tabs {
-  display: flex; padding: 0.5rem 1.25rem 0;
-  border-bottom: 1px solid #e8e5e0; gap: 0;
-  position: sticky; top: 49px; background: #f7f6f3; z-index: 9;
-}
-.rk-tab {
-  flex: 1; padding: 8px 2px; font-size: 11px; text-align: center;
-  border: none; background: none; cursor: pointer; color: #bbb;
-  font-family: 'Noto Serif JP', serif; letter-spacing: 0.03em;
-  border-bottom: 2px solid transparent; transition: all 0.15s;
-}
-.rk-tab.active { color: #1a1a1a; border-bottom-color: #1a1a1a; }
-.rk-body { padding: 0.75rem 1.25rem 2rem; }
-.rk-loading { text-align: center; padding: 2rem; color: #bbb; font-size: 13px; }
-.rk-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 12px; margin-bottom: 6px;
-  background: #fff; border: 1px solid #e8e5e0; border-radius: 10px;
-}
-.rk-rank { font-size: 13px; font-family: 'DM Mono', monospace; color: #ccc; width: 20px; text-align: center; flex-shrink: 0; }
-.rk-medal { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
-.rk-info { flex: 1; min-width: 0; }
-.rk-puzzle { font-size: 9px; color: #ccc; font-family: 'DM Mono', monospace; margin-bottom: 2px; }
-.rk-time { font-size: 20px; font-family: 'DM Mono', monospace; color: #1a1a1a; }
-.rk-mine { background: #f0f6ff !important; border-color: #185FA5 !important; }
-.rk-mine .rk-time { color: #185FA5; }
-.rk-mine .rk-puzzle { color: #9ab8d8; }
-.rk-empty { text-align: center; padding: 3rem 1rem; color: #ccc; font-size: 13px; }
 
 /* ════════════════════════════════
    DIFF SELECT SCREEN
@@ -434,29 +386,12 @@ body {
       <div class="win-time" id="winTime"></div>
       <div class="win-btns">
         <button class="win-btn secondary" onclick="goList()">一覧へ</button>
-        <button class="win-btn ranking" onclick="showRankingFromWin()">🏆 ランキング</button>
         <button class="win-btn primary" id="winNextBtn" onclick="playNext()">次の問題</button>
       </div>
     </div>
   </div>
 
 
-  <!-- ════ RANKING ════ -->
-  <div id="scr-ranking" class="screen">
-    <div class="ranking-header">
-      <button class="rk-back" id="rkBack">← 一覧</button>
-      <span class="rk-title">ランキング</span>
-      <span class="rk-date" id="rkDate"></span>
-    </div>
-    <div class="rk-diff-tabs" id="rkTabs">
-      <button class="rk-tab active" data-d="1">かんたん</button>
-      <button class="rk-tab" data-d="2">やさしい</button>
-      <button class="rk-tab" data-d="3">ふつう</button>
-      <button class="rk-tab" data-d="4">むずい</button>
-      <button class="rk-tab" data-d="5">げきむず</button>
-    </div>
-    <div class="rk-body" id="rkBody"></div>
-  </div>
 
 </div><!-- /root -->
 
@@ -1092,8 +1027,6 @@ function checkWin() {
   const key = progressKey(currentPuzzleDiff, currentPuzzleIdx);
   PROGRESS[key] = { cleared: true, time: timerSec, errors: errorCount };
   saveProgress();
-  // ランキングに送信
-  submitRanking(currentPuzzleDiff, currentPuzzleIdx, timerSec);
   // show win overlay
   const m = Math.floor(timerSec/60), s = timerSec%60;
   document.getElementById('winTime').textContent = `タイム ${m}:${String(s).padStart(2,'0')}　ミス ${errorCount}回`;
@@ -1108,145 +1041,6 @@ function checkWin() {
 }
 
 
-// ════════════════════════════════════════
-// SUPABASE CONFIG
-// ════════════════════════════════════════
-const SUPABASE_URL = 'https://ukkimdawdhuvyyjptlja.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVra2ltZGF3ZGh1dnl5anB0bGphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3MTUwNTgsImV4cCI6MjA5MzI5MTA1OH0.5rX9iiB_sr7x6399lp9TvPMr1HW1FN_vNjIBse2fLlQ';
-
-// 匿名ユーザーIDをlocalStorageで管理
-function getAnonId() {
-  let id = localStorage.getItem('nanpure100_uid');
-  if (!id) {
-    id = 'u_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
-    localStorage.setItem('nanpure100_uid', id);
-  }
-  return id;
-}
-
-async function sbFetch(path, options = {}) {
-  const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
-    ...options,
-    headers: {
-      'apikey': SUPABASE_ANON,
-      'Authorization': 'Bearer ' + SUPABASE_ANON,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=minimal',
-      ...(options.headers || {})
-    }
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text);
-  }
-  const ct = res.headers.get('content-type') || '';
-  if (ct.includes('json') && res.status !== 204) return res.json();
-  return null;
-}
-
-async function submitRanking(diff, puzzleIdx, timeSec) {
-  try {
-    await sbFetch('rankings', {
-      method: 'POST',
-      headers: { 'Prefer': 'return=minimal' },
-      body: JSON.stringify({
-        diff,
-        puzzle_idx: puzzleIdx,
-        date: todayStr(),
-        time_sec: timeSec,
-        uid: getAnonId()
-      })
-    });
-  } catch(e) {
-    console.warn('ランキング送信失敗:', e);
-  }
-}
-
-async function fetchRanking(diff) {
-  try {
-    const data = await sbFetch(
-      `rankings?select=*&diff=eq.${diff}&date=eq.${todayStr()}&order=time_sec.asc&limit=100`,
-      { headers: { 'Prefer': '' } }
-    );
-    return data || [];
-  } catch(e) {
-    console.warn('ランキング取得失敗:', e);
-    return [];
-  }
-}
-
-// ════════════════════════════════════════
-// RANKING SCREEN
-// ════════════════════════════════════════
-let rankingDiff = 1;
-
-function showRankingScreen(diff) {
-  rankingDiff = diff || 1;
-  document.getElementById('rkDate').textContent = dateLabel();
-  showScreen('scr-ranking');
-  renderRankingTabs();
-  loadAndRenderRanking(rankingDiff);
-}
-
-function showRankingFromWin() {
-  document.getElementById('winOverlay').classList.remove('show');
-  clearInterval(timerInt);
-  showRankingScreen(currentPuzzleDiff);
-}
-
-function renderRankingTabs() {
-  document.querySelectorAll('.rk-tab').forEach(tab => {
-    const d = parseInt(tab.dataset.d);
-    tab.classList.toggle('active', d === rankingDiff);
-  });
-}
-
-async function loadAndRenderRanking(diff) {
-  const body = document.getElementById('rkBody');
-  body.innerHTML = '<div class="rk-loading">読み込み中...</div>';
-  const rows = await fetchRanking(diff);
-  const myId = getAnonId();
-  const medals = ['🥇','🥈','🥉'];
-
-  if (!rows.length) {
-    body.innerHTML = '<div class="rk-empty">まだ記録がありません<br>クリアして1位を狙おう！</div>';
-    return;
-  }
-
-  // group by puzzle_idx, take best per user
-  // show overall top list (all entries, sorted by time)
-  let html = '';
-  rows.forEach((row, i) => {
-    const isMe = row.uid === myId;
-    const m = Math.floor(row.time_sec / 60), s = row.time_sec % 60;
-    const timeStr = m + ':' + String(s).padStart(2, '0');
-    const puzzleLabel = `難易度${diff} − ${String(row.puzzle_idx + 1).padStart(2,'0')}問目`;
-    const medal = medals[i] || '';
-    const rankLabel = i < 3 ? '' : `${i+1}`;
-    html += `
-      <div class="rk-row${isMe ? ' rk-mine' : ''}">
-        <span class="rk-medal">${medal}</span>
-        <span class="rk-rank">${rankLabel}</span>
-        <div class="rk-info">
-          <div class="rk-puzzle">${puzzleLabel}${isMe ? ' ◀ あなた' : ''}</div>
-          <div class="rk-time">${timeStr}</div>
-        </div>
-      </div>`;
-  });
-  body.innerHTML = html;
-}
-
-document.getElementById('rkBack').addEventListener('click', () => {
-  showListScreen(currentPuzzleDiff || 1);
-});
-
-document.getElementById('rkTabs').addEventListener('click', e => {
-  const tab = e.target.closest('.rk-tab');
-  if (!tab) return;
-  rankingDiff = parseInt(tab.dataset.d);
-  renderRankingTabs();
-  loadAndRenderRanking(rankingDiff);
-});
 
 // back button
 document.getElementById('ghBack').addEventListener('click', () => {
