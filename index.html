@@ -103,8 +103,18 @@ body {
   font-family: 'Noto Serif JP', serif; font-size: 14px; font-weight: 300; letter-spacing: 0.2em;
   cursor: pointer; transition: all 0.2s; margin-top: 12px;
   opacity: 0; animation: fadeUp 0.6s 1.2s ease forwards;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
 }
 .op-start-btn-sub:hover { background: #1a1a1a; color: #f7f6f3; }
+.op-start-btn-sub.locked {
+  border-color: #bbb; color: #888;
+}
+.op-start-btn-sub.locked:hover { background: #635bff; border-color: #635bff; color: #fff; }
+.op-price-badge {
+  font-size: 10px; background: #635bff; color: #fff;
+  padding: 2px 6px; border-radius: 10px; letter-spacing: 0.05em;
+  font-weight: 400;
+}
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -599,6 +609,41 @@ function saveProgress() {
 }
 
 // ════════════════════════════════════════
+// PURCHASE / LICENSE
+// ════════════════════════════════════════
+// ★ Stripe Payment LinkのURLをここに設定してください
+const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/XXXXXXXXXXXXXXXX';
+
+function isPurchased() {
+  return localStorage.getItem('nanpure100_purchased') === 'true';
+}
+
+function unlockPurchase() {
+  localStorage.setItem('nanpure100_purchased', 'true');
+}
+
+// 購入完了後のリダイレクトを検知（?nanpure_paid=1）
+(function checkPurchaseReturn() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('nanpure_paid') === '1') {
+    unlockPurchase();
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+})();
+
+// 通常版ボタンの表示を購入状態に応じて更新
+function updateNormalBtn() {
+  const btn = document.getElementById('opNormalBtn');
+  if (isPurchased()) {
+    btn.classList.remove('locked');
+    btn.innerHTML = '通常版を遊ぶ';
+  } else {
+    btn.classList.add('locked');
+    btn.innerHTML = '🔒 通常版を遊ぶ <span class="op-price-badge">¥100</span>';
+  }
+}
+
+// ════════════════════════════════════════
 // SCREENS
 // ════════════════════════════════════════
 function showScreen(id) {
@@ -637,13 +682,20 @@ function showScreen(id) {
     showDiffScreen();
   });
 
-  // 通常版を遊ぶ
+  // 通常版を遊ぶ（未購入ならStripe決済へ）
   document.getElementById('opNormalBtn').addEventListener('click', () => {
+    if (!isPurchased()) {
+      window.location.href = STRIPE_PAYMENT_LINK;
+      return;
+    }
     currentMode = 'normal';
     PUZZLES = [];
     PROGRESS = loadProgress();
     showDiffScreen();
   });
+
+  // 購入状態を反映
+  updateNormalBtn();
 })();
 
 // ════════════════════════════════════════
