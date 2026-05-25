@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#f7f6f3">
-<title>ナンプレ25</title>
+<title>シンプルナンプレ100</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
-<meta name="apple-mobile-web-app-title" content="ナンプレ25">
+<meta name="apple-mobile-web-app-title" content="シンプルナンプレ100">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 /* ── Reset & Base ── */
@@ -300,6 +300,57 @@ body {
 .rk-mine .rk-time { color: #185FA5; }
 .rk-mine .rk-puzzle { color: #9ab8d8; }
 .rk-empty { text-align: center; padding: 3rem 1rem; color: #ccc; font-size: 13px; }
+
+/* ════════════════════════════════
+   DIFF SELECT SCREEN
+════════════════════════════════ */
+#scr-diff { background: #f7f6f3; }
+.diff-scr-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.25rem 0.75rem;
+  border-bottom: 1px solid #e8e5e0;
+}
+.dh-back {
+  font-size: 14px; color: #888; cursor: pointer; padding: 4px 0;
+  background: none; border: none; font-family: 'Noto Serif JP', serif;
+  letter-spacing: 0.05em;
+}
+.dh-logo { font-size: 16px; font-weight: 300; letter-spacing: 0.12em; color: #1a1a1a; }
+.diff-scr-body { padding: 1.5rem 1.25rem; display: flex; flex-direction: column; }
+.diff-select-label {
+  font-size: 10px; letter-spacing: 0.2em; color: #bbb; margin-bottom: 1rem;
+}
+.diff-btn-list { display: flex; flex-direction: column; gap: 10px; }
+.diff-btn {
+  width: 100%; padding: 16px 18px;
+  background: #fff; border: 1.5px solid #e0ddd8; border-radius: 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; transition: all 0.15s; text-align: left;
+}
+.diff-btn:hover { border-color: #aaa; transform: translateY(-1px); background: #f0ede8; }
+.diff-btn-left { display: flex; align-items: center; gap: 14px; }
+.diff-btn-num {
+  width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+  background: #1a1a1a; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-family: 'DM Mono', monospace;
+}
+.diff-btn-name {
+  font-size: 16px; letter-spacing: 0.06em; color: #1a1a1a;
+  font-family: 'Noto Serif JP', serif;
+}
+.diff-btn-badge {
+  font-size: 10px; font-family: 'DM Mono', monospace;
+  color: #888; background: #eee; border-radius: 20px; padding: 4px 10px; flex-shrink: 0;
+}
+.diff-btn-badge.done { background: #1a1a1a; color: #fff; }
+
+/* ════════════════════════════════
+   LIST SCREEN (Problem Select)
+════════════════════════════════ */
+.list-puzzle-body { padding: 1.5rem 1.25rem; }
+.list-puzzle-body .puzzle-grid { grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.list-puzzle-body .pz-btn .pz-num { font-size: 18px; }
 </style>
 </head>
 <body>
@@ -309,33 +360,34 @@ body {
   <div id="scr-opening" class="screen active">
     <div class="op-grid" id="opGrid"></div>
     <div class="op-logo">
-      <span class="op-logo-main">ナンプレ25</span>
-      <span class="op-logo-sub">N A N P U R E  2 5</span>
+      <span class="op-logo-main">シンプルナンプレ100</span>
+      <span class="op-logo-sub">S I M P L E  N A N P U R E  1 0 0</span>
     </div>
     <div class="op-date" id="opDate"></div>
-    <div class="op-diff-label">どこから始めますか？</div>
-    <div class="op-diff-row" id="opDiffRow">
-      <div class="op-diff-card sel" data-d="1"><span class="dc-n">1</span><span class="dc-l">かんたん</span></div>
-      <div class="op-diff-card" data-d="2"><span class="dc-n">2</span><span class="dc-l">やさしい</span></div>
-      <div class="op-diff-card" data-d="3"><span class="dc-n">3</span><span class="dc-l">ふつう</span></div>
-      <div class="op-diff-card" data-d="4"><span class="dc-n">4</span><span class="dc-l">むずい</span></div>
-      <div class="op-diff-card" data-d="5"><span class="dc-n">5</span><span class="dc-l">むずかしい</span></div>
-    </div>
-    <button class="op-start-btn" id="opStartBtn">はじめる</button>
+    <button class="op-start-btn" id="opStartBtn">体験版を遊ぶ</button>
   </div>
 
-  <!-- ════ LIST ════ -->
+  <!-- ════ DIFF SELECT ════ -->
+  <div id="scr-diff" class="screen">
+    <div class="diff-scr-header">
+      <button class="dh-back" id="dhBack">← もどる</button>
+      <span class="dh-logo">シンプルナンプレ100</span>
+      <span></span>
+    </div>
+    <div class="diff-scr-body">
+      <div class="diff-select-label">DIFFICULTY</div>
+      <div id="diffBtnList" class="diff-btn-list"></div>
+    </div>
+  </div>
+
+  <!-- ════ LIST（問題選択） ════ -->
   <div id="scr-list" class="screen">
     <div class="list-header">
-      <span class="list-logo">ナンプレ25</span>
-      <div style="display:flex;gap:8px;align-items:center"><button onclick="showRankingScreen(1)" style="font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid #e0ddd8;background:#fff;cursor:pointer;color:#555;font-family:'Noto Serif JP',serif">🏆 ランキング</button><span class="list-date-badge" id="listDateBadge"></span></div>
+      <button class="lh-back" id="lhBack">← もどる</button>
+      <span class="list-logo" id="listDiffTitle"></span>
+      <span class="list-date-badge" id="listDateBadge"></span>
     </div>
-    <div class="list-summary">
-      <div class="list-stat"><div class="ls-label">クリア</div><div class="ls-val" id="lsClear">0<span>/25</span></div></div>
-      <div class="list-stat"><div class="ls-label">今日の残り</div><div class="ls-val" id="lsLeft">25</div></div>
-      <div class="list-stat"><div class="ls-label">ベストタイム</div><div class="ls-val" id="lsBest">--:--</div></div>
-    </div>
-    <div id="listBody"></div>
+    <div class="list-puzzle-body" id="listBody"></div>
   </div>
 
   <!-- ════ GAME ════ -->
@@ -558,10 +610,7 @@ function showScreen(id) {
 // ════════════════════════════════════════
 // OPENING SCREEN
 // ════════════════════════════════════════
-let openingDiff = 1;
-
 (function initOpening() {
-  // date label
   document.getElementById('opDate').textContent = dateLabel();
 
   // decorative mini grid
@@ -581,95 +630,84 @@ let openingDiff = 1;
     g.appendChild(cell);
   }
 
-  // diff cards
-  document.getElementById('opDiffRow').addEventListener('click', e => {
-    const card = e.target.closest('.op-diff-card');
-    if (!card) return;
-    document.querySelectorAll('.op-diff-card').forEach(c => c.classList.remove('sel'));
-    card.classList.add('sel');
-    openingDiff = parseInt(card.dataset.d);
-  });
-
-  // start button
+  // 体験版を遊ぶ → 難易度選択画面へ
   document.getElementById('opStartBtn').addEventListener('click', () => {
     buildDailyPuzzles();
     PROGRESS = loadProgress();
-    showListScreen(openingDiff);
+    showDiffScreen();
   });
 })();
 
 // ════════════════════════════════════════
-// LIST SCREEN
+// DIFF SELECT SCREEN（難易度選択）
 // ════════════════════════════════════════
 const DIFF_NAMES = { 1:'かんたん', 2:'やさしい', 3:'ふつう', 4:'むずかしい', 5:'げきむず' };
+let currentDiff = 1;
 
-function showListScreen(scrollToDiff) {
-  showScreen('scr-list');
-  document.getElementById('listDateBadge').textContent = dateLabel();
-  renderListSummary();
-  renderListBody();
-  // scroll to target diff section
-  if (scrollToDiff) {
-    setTimeout(() => {
-      const el = document.getElementById('diff-section-' + scrollToDiff);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
+function showDiffScreen() {
+  showScreen('scr-diff');
+  renderDiffButtons();
+}
+
+function renderDiffButtons() {
+  const list = document.getElementById('diffBtnList');
+  list.innerHTML = '';
+  for (let diff = 1; diff <= 5; diff++) {
+    const puzzlesOfDiff = PUZZLES.filter(p => p.diff === diff);
+    const clearedCount = puzzlesOfDiff.filter(p => PROGRESS[progressKey(p.diff, p.idx)]?.cleared).length;
+    const btn = document.createElement('button');
+    btn.className = 'diff-btn';
+    btn.innerHTML = `
+      <div class="diff-btn-left">
+        <div class="diff-btn-num">${diff}</div>
+        <span class="diff-btn-name">${DIFF_NAMES[diff]}</span>
+      </div>
+      <span class="diff-btn-badge ${clearedCount===5?'done':''}">${clearedCount} / 5</span>
+    `;
+    btn.addEventListener('click', () => showListScreen(diff));
+    list.appendChild(btn);
   }
 }
 
-function renderListSummary() {
-  const cleared = Object.values(PROGRESS).filter(p => p.cleared).length;
-  const left = 25 - cleared;
-  document.getElementById('lsClear').innerHTML = `${cleared}<span>/25</span>`;
-  document.getElementById('lsLeft').textContent = left;
-  // best time across all cleared
-  const times = Object.values(PROGRESS).filter(p => p.cleared && p.time).map(p => p.time);
-  if (times.length) {
-    const best = Math.min(...times);
-    const m = Math.floor(best/60), s = best%60;
-    document.getElementById('lsBest').textContent = m + ':' + String(s).padStart(2,'0');
-  } else {
-    document.getElementById('lsBest').textContent = '--:--';
-  }
+document.getElementById('dhBack').addEventListener('click', () => showScreen('scr-opening'));
+
+// ════════════════════════════════════════
+// LIST SCREEN（問題選択）
+// ════════════════════════════════════════
+function showListScreen(diff) {
+  currentDiff = diff;
+  showScreen('scr-list');
+  document.getElementById('listDateBadge').textContent = dateLabel();
+  document.getElementById('listDiffTitle').textContent = `難易度${diff}　${DIFF_NAMES[diff]}`;
+  renderListBody();
 }
 
 function renderListBody() {
   const body = document.getElementById('listBody');
   body.innerHTML = '';
-  for (let diff = 1; diff <= 5; diff++) {
-    const puzzlesOfDiff = PUZZLES.filter(p => p.diff === diff);
-    const clearedCount = puzzlesOfDiff.filter(p => PROGRESS[progressKey(p.diff, p.idx)]?.cleared).length;
-    const sec = document.createElement('div');
-    sec.className = 'diff-section';
-    sec.id = 'diff-section-' + diff;
-    sec.innerHTML = `
-      <div class="diff-section-title">
-        <span class="dst-label">難易度 ${diff}　${DIFF_NAMES[diff]}</span>
-        <span class="dst-badge ${clearedCount===5?'done':''}">${clearedCount} / 5</span>
-      </div>
-      <div class="puzzle-grid" id="pgrid-${diff}"></div>
+  const grid = document.createElement('div');
+  grid.className = 'puzzle-grid';
+  const puzzlesOfDiff = PUZZLES.filter(p => p.diff === currentDiff);
+  puzzlesOfDiff.forEach((pz, i) => {
+    const key = progressKey(pz.diff, pz.idx);
+    const prog = PROGRESS[key];
+    const btn = document.createElement('button');
+    btn.className = 'pz-btn' + (prog?.cleared ? ' cleared' : prog ? ' in-progress' : '');
+    const timeStr = prog?.cleared && prog.time
+      ? (() => { const m=Math.floor(prog.time/60),s=prog.time%60; return m+':'+String(s).padStart(2,'0'); })()
+      : '';
+    btn.innerHTML = `
+      <span class="pz-num">${String(i+1).padStart(2,'0')}</span>
+      <span class="pz-status">${prog?.cleared ? timeStr : prog ? '途中' : ''}</span>
+      ${prog?.cleared ? '<span class="pz-check">✓</span>' : ''}
     `;
-    body.appendChild(sec);
-
-    const pgrid = sec.querySelector(`#pgrid-${diff}`);
-    puzzlesOfDiff.forEach((pz, i) => {
-      const key = progressKey(pz.diff, pz.idx);
-      const prog = PROGRESS[key];
-      const btn = document.createElement('button');
-      btn.className = 'pz-btn' + (prog?.cleared ? ' cleared' : prog ? ' in-progress' : '');
-      const timeStr = prog?.cleared && prog.time
-        ? (() => { const m=Math.floor(prog.time/60),s=prog.time%60; return m+':'+String(s).padStart(2,'0'); })()
-        : '';
-      btn.innerHTML = `
-        <span class="pz-num">${String(i+1).padStart(2,'0')}</span>
-        <span class="pz-status">${prog?.cleared ? timeStr : prog ? '途中' : ''}</span>
-        ${prog?.cleared ? '<span class="pz-check">✓</span>' : ''}
-      `;
-      btn.addEventListener('click', () => startGame(pz.diff, pz.idx));
-      pgrid.appendChild(btn);
-    });
-  }
+    btn.addEventListener('click', () => startGame(pz.diff, pz.idx));
+    grid.appendChild(btn);
+  });
+  body.appendChild(grid);
 }
+
+document.getElementById('lhBack').addEventListener('click', () => showDiffScreen());
 
 // ════════════════════════════════════════
 // GAME SCREEN
@@ -750,22 +788,21 @@ function goList() {
   clearInterval(timerInt);
   document.getElementById('winOverlay').classList.remove('show');
   showListScreen(currentPuzzleDiff);
-  renderListSummary();
-  renderListBody();
 }
 
 function playNext() {
   document.getElementById('winOverlay').classList.remove('show');
-  // find next uncleated puzzle in same diff, then next diff
-  const allUncleard = PUZZLES.filter(p => {
+  // find next uncleared puzzle in same difficulty
+  const sameDiff = PUZZLES.filter(p => {
     const k = progressKey(p.diff, p.idx);
-    return !PROGRESS[k]?.cleared;
+    return p.diff === currentPuzzleDiff && p.idx > currentPuzzleIdx && !PROGRESS[k]?.cleared;
   });
-  // prefer same diff first
-  const sameDiff = allUncleard.filter(p => p.diff === currentPuzzleDiff && p.idx > currentPuzzleIdx);
-  const next = sameDiff.length ? sameDiff[0] : allUncleard[0];
-  if (next) startGame(next.diff, next.idx);
-  else goList();
+  if (sameDiff.length) {
+    startGame(sameDiff[0].diff, sameDiff[0].idx);
+  } else {
+    // no more in this diff, go back to problem list
+    goList();
+  }
 }
 
 function updateTimer() {

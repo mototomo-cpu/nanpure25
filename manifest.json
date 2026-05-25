@@ -1,6 +1,6 @@
 {
-  "name": "ナンプレ25",
-  "short_name": "ナンプレ25",
+  "name": "シンプルナンプレ100",
+  "short_name": "ナンプレ100",
   "description": "毎日25問の数独パズル",
   "start_url": ".",
   "display": "standalone",
