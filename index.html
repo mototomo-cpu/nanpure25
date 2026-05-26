@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f7f6f3">
+<title>シンプルナンプレ100</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-title" content="シンプルナンプレ100">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & Base ── */
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: 'Noto Serif JP', serif;
+  background: #f7f6f3;
+  min-height: 100vh;
+  display: flex; justify-content: center;
+  overscroll-behavior: none;
+}
+#root { width: 100%; max-width: 480px; position: relative; }
+
+/* ── Screens ── */
+.screen { display: none; flex-direction: column; min-height: 100vh; padding: 0; }
+.screen.active { display: flex; }
+
+/* ════════════════════════════════
+   OPENING SCREEN
+════════════════════════════════ */
+#scr-opening {
+  align-items: center; justify-content: center;
+  background: #f7f6f3; padding: 2rem 1.5rem;
+}
+.op-grid {
+  display: grid; grid-template-columns: repeat(9, 1fr);
+  width: 198px; height: 198px;
+  border: 2px solid #c8c4be; border-radius: 5px; overflow: hidden;
+  margin-bottom: 2rem;
+}
+.op-cell {
+  border: 0.5px solid #e0ddd8;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Mono', monospace; font-size: 12px; color: #bbb;
+  opacity: 0; animation: opCellIn 0.35s ease forwards;
+}
+.op-cell.br { border-right: 2px solid #c8c4be; }
+.op-cell.bb { border-bottom: 2px solid #c8c4be; }
+.op-cell.filled { color: #888; }
+@keyframes opCellIn {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.op-logo {
+  text-align: center; margin-bottom: 2.5rem;
+  opacity: 0; animation: fadeUp 0.6s 0.5s ease forwards;
+}
+.op-logo-main {
+  font-size: 36px; font-weight: 300; letter-spacing: 0.2em; color: #1a1a1a;
+  display: block; margin-bottom: 4px;
+}
+.op-logo-sub {
+  font-size: 10px; letter-spacing: 0.3em; color: #bbb; font-family: 'DM Mono', monospace;
+}
+.op-date {
+  font-size: 11px; letter-spacing: 0.15em; color: #aaa; margin-bottom: 2rem;
+  opacity: 0; animation: fadeUp 0.6s 0.7s ease forwards;
+  font-family: 'DM Mono', monospace;
+}
+.op-diff-label {
+  font-size: 10px; letter-spacing: 0.2em; color: #bbb; margin-bottom: 0.75rem;
+  opacity: 0; animation: fadeUp 0.6s 0.85s ease forwards;
+}
+.op-diff-row {
+  display: flex; gap: 8px; margin-bottom: 2rem;
+  opacity: 0; animation: fadeUp 0.6s 0.95s ease forwards;
+}
+.op-diff-card {
+  flex: 1; padding: 14px 4px; border-radius: 10px;
+  border: 1.5px solid #e0ddd8; background: #fff;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  cursor: pointer; transition: all 0.2s ease;
+}
+.op-diff-card:hover { border-color: #aaa; transform: translateY(-2px); background: #f0ede8; }
+.op-diff-card.sel { border-color: #1a1a1a; background: #1a1a1a; color: #fff; transform: translateY(-2px); }
+.op-diff-card .dc-n { font-size: 18px; font-family: 'DM Mono', monospace; font-weight: 400; }
+.op-diff-card .dc-l { font-size: 8px; letter-spacing: 0.08em; color: #aaa; }
+.op-diff-card.sel .dc-l { color: #888; }
+.op-start-btn {
+  width: 100%; max-width: 280px; padding: 15px;
+  background: #1a1a1a; color: #f7f6f3; border: none; border-radius: 8px;
+  font-family: 'Noto Serif JP', serif; font-size: 15px; font-weight: 300; letter-spacing: 0.2em;
+  cursor: pointer; transition: all 0.2s;
+  opacity: 0; animation: fadeUp 0.6s 1.05s ease forwards;
+}
+.op-start-btn:hover { background: #333; }
+.op-start-btn-sub {
+  width: 100%; max-width: 280px; padding: 13px;
+  background: transparent; color: #1a1a1a;
+  border: 1.5px solid #1a1a1a; border-radius: 8px;
+  font-family: 'Noto Serif JP', serif; font-size: 14px; font-weight: 300; letter-spacing: 0.2em;
+  cursor: pointer; transition: all 0.2s; margin-top: 12px;
+  opacity: 0; animation: fadeUp 0.6s 1.2s ease forwards;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.op-start-btn-sub:hover { background: #1a1a1a; color: #f7f6f3; }
+.op-start-btn-sub.locked {
+  border-color: #bbb; color: #888;
+}
+.op-start-btn-sub.locked:hover { background: #635bff; border-color: #635bff; color: #fff; }
+.op-price-badge {
+  font-size: 10px; background: #635bff; color: #fff;
+  padding: 2px 6px; border-radius: 10px; letter-spacing: 0.05em;
+  font-weight: 400;
+}
+.op-btn-note {
+  font-size: 10px; color: #aaa; letter-spacing: 0.05em;
+  margin-top: 6px; font-family: 'Noto Serif JP', serif;
+  opacity: 0; animation: fadeUp 0.6s 1.1s ease forwards;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 通常版 問題集ボタン */
+.set-btn-list { display: flex; flex-direction: column; gap: 10px; padding: 1rem 1.25rem; }
+.set-btn {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 18px; border-radius: 12px;
+  border: 1.5px solid #e0ddd8; background: #fff;
+  cursor: pointer; transition: all 0.15s; text-align: left;
+}
+.set-btn:hover { border-color: #aaa; transform: translateY(-1px); }
+.set-btn.purchased { border-color: #1a1a1a; }
+.set-btn-left { display: flex; flex-direction: column; gap: 3px; }
+.set-btn-vol { font-size: 16px; font-weight: 300; letter-spacing: 0.1em; color: #1a1a1a; }
+.set-btn-range { font-size: 10px; font-family: 'DM Mono', monospace; color: #aaa; }
+.set-btn-right { font-size: 13px; }
+.set-btn-badge-purchased {
+  font-size: 10px; background: #1a1a1a; color: #fff;
+  padding: 3px 10px; border-radius: 20px; letter-spacing: 0.05em;
+}
+.set-btn-badge-locked {
+  font-size: 10px; background: #635bff; color: #fff;
+  padding: 3px 10px; border-radius: 20px; letter-spacing: 0.05em;
+}
+
+/* 購入確認モーダル */
+.purchase-modal {
+  display: none; position: fixed; inset: 0; z-index: 100;
+  background: rgba(0,0,0,0.5); align-items: center; justify-content: center;
+}
+.purchase-modal.show { display: flex; }
+.purchase-modal-card {
+  background: #fff; border-radius: 16px; padding: 28px 24px;
+  width: calc(100% - 48px); max-width: 340px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.purchase-modal-title {
+  font-size: 16px; font-weight: 300; letter-spacing: 0.1em; color: #1a1a1a;
+  text-align: center;
+}
+.purchase-modal-body { font-size: 13px; color: #888; text-align: center; line-height: 1.8; }
+.purchase-modal-btns { display: flex; gap: 10px; margin-top: 4px; }
+.purchase-btn-cancel {
+  flex: 1; padding: 12px; border-radius: 8px; border: 1.5px solid #e0ddd8;
+  background: #fff; color: #888; font-family: 'Noto Serif JP', serif;
+  font-size: 13px; cursor: pointer; transition: all 0.15s;
+}
+.purchase-btn-cancel:hover { background: #f7f6f3; }
+.purchase-btn-ok {
+  flex: 2; padding: 12px; border-radius: 8px; border: none;
+  background: #635bff; color: #fff; font-family: 'Noto Serif JP', serif;
+  font-size: 13px; cursor: pointer; transition: all 0.15s; letter-spacing: 0.05em;
+}
+.purchase-btn-ok:hover { background: #4f46e5; }
+
+/* 通常版 100問グリッド */
+.pz-grid-normal {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 1rem;
+}
+.pz-btn-normal {
+  aspect-ratio: 1; border-radius: 8px; border: 1.5px solid #e0ddd8;
+  background: #fff; cursor: pointer; position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-family: 'DM Mono', monospace; font-size: 12px; color: #888;
+  transition: all 0.15s;
+}
+.pz-btn-normal:hover { border-color: #aaa; background: #f7f6f3; }
+.pz-btn-normal.cleared { background: #1a1a1a; border-color: #1a1a1a; color: #fff; }
+.pz-btn-normal.in-progress { border-color: #888; }
+.pz-btn-normal .pz-chk-sm { position: absolute; top: 2px; right: 4px; font-size: 8px; }
+
+/* ════════════════════════════════
+   LIST SCREEN
+════════════════════════════════ */
+#scr-list { background: #f7f6f3; }
+.list-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.25rem 0.75rem;
+  border-bottom: 1px solid #e8e5e0;
+  position: sticky; top: 0; background: #f7f6f3; z-index: 10;
+}
+.list-logo { font-size: 18px; font-weight: 300; letter-spacing: 0.15em; color: #1a1a1a; }
+.list-date-badge {
+  font-size: 10px; font-family: 'DM Mono', monospace; letter-spacing: 0.1em;
+  color: #aaa; background: #eee; border-radius: 20px; padding: 4px 10px;
+}
+.list-summary {
+  padding: 1rem 1.25rem;
+  display: flex; gap: 10px;
+}
+.list-stat {
+  flex: 1; background: #fff; border: 1px solid #e8e5e0; border-radius: 10px;
+  padding: 10px 8px; text-align: center;
+}
+.ls-label { font-size: 10px; color: #bbb; margin-bottom: 3px; letter-spacing: 0.05em; }
+.ls-val { font-size: 20px; font-family: 'DM Mono', monospace; color: #1a1a1a; font-weight: 400; }
+.ls-val span { font-size: 11px; color: #bbb; }
+.diff-section { padding: 0 1.25rem 1rem; }
+.diff-section-title {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.75rem 0 0.5rem;
+  border-bottom: 1px solid #ece9e4; margin-bottom: 0.5rem;
+}
+.dst-label { font-size: 13px; color: #1a1a1a; letter-spacing: 0.05em; }
+.dst-badge {
+  font-size: 10px; font-family: 'DM Mono', monospace;
+  color: #888; background: #eee; border-radius: 20px; padding: 3px 8px;
+}
+.dst-badge.done { background: #1a1a1a; color: #fff; }
+.puzzle-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
+}
+.pz-btn {
+  aspect-ratio: 1; border-radius: 8px; border: 1.5px solid #e0ddd8;
+  background: #fff; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px; transition: all 0.15s; position: relative; overflow: hidden;
+}
+.pz-btn:hover { border-color: #aaa; transform: translateY(-1px); }
+.pz-btn .pz-num { font-size: 15px; font-family: 'DM Mono', monospace; color: #444; font-weight: 400; }
+.pz-btn .pz-status { font-size: 8px; letter-spacing: 0.05em; color: #ccc; }
+.pz-btn.cleared { background: #1a1a1a; border-color: #1a1a1a; }
+.pz-btn.cleared .pz-num { color: #fff; }
+.pz-btn.cleared .pz-status { color: #777; }
+.pz-btn.in-progress { border-color: #185FA5; }
+.pz-btn.in-progress .pz-num { color: #185FA5; }
+.pz-btn.in-progress .pz-status { color: #185FA5; }
+.pz-btn .pz-check { position: absolute; top: 4px; right: 5px; font-size: 9px; color: #555; }
+.pz-btn.cleared .pz-check { color: #fff; }
+
+/* ════════════════════════════════
+   GAME SCREEN
+════════════════════════════════ */
+#scr-game { background: #f7f6f3; }
+.game-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.75rem 1rem 0.5rem;
+  border-bottom: 1px solid #e8e5e0;
+}
+.gh-back {
+  font-size: 14px; color: #888; cursor: pointer; padding: 4px 0;
+  background: none; border: none; font-family: 'Noto Serif JP', serif;
+  letter-spacing: 0.05em;
+}
+.gh-title { font-size: 14px; font-weight: 300; letter-spacing: 0.1em; color: #555; }
+.gh-pager { font-size: 12px; font-family: 'DM Mono', monospace; color: #bbb; }
+.game-body { padding: 0.3rem 0; flex: 1; display: flex; flex-direction: column; }
+.stats-row { display: flex; gap: 6px; margin-bottom: 0.4rem; padding: 0 0.5rem; }
+.stat { flex: 1; background: #fff; border: 1px solid #e8e5e0; border-radius: 8px; padding: 5px; text-align: center; }
+.stat-label { font-size: 9px; color: #bbb; margin-bottom: 1px; }
+.stat-val { font-size: 14px; font-weight: 400; color: #1a1a1a; font-family: 'DM Mono', monospace; }
+.board-wrap { display: flex; justify-content: center; margin-bottom: 0.4rem; }
+.board {
+  display: grid; grid-template-columns: repeat(9, 1fr);
+  border: 2px solid #444; border-radius: 0; overflow: hidden;
+  width: 100%; aspect-ratio: 1;
+}
+.cell {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px; font-weight: 400; cursor: pointer;
+  border: 0.5px solid #ddd; color: #1a1a1a; background: #fff;
+  transition: background 0.08s; user-select: none;
+  position: relative;
+  font-family: 'DM Mono', monospace;
+}
+.cell.given { font-weight: 500; color: #1a1a1a; }
+.cell.user-input { color: #185FA5; }
+.cell.error { color: #B03A2E !important; }
+.cell.selected { background: #C4DEFA !important; }
+.cell.same-num { background: #e3f0fd !important; }
+.cell.row-hl { background: #f4f2ef; }
+.cell.box-hl { background: #f0ede8; }
+.cell.br { border-right: 2px solid #444; }
+.cell.bb { border-bottom: 2px solid #444; }
+.memo-g { position: absolute; inset: 1px; display: grid; grid-template-columns: repeat(3,1fr); grid-template-rows: repeat(3,1fr); pointer-events: none; }
+.memo-n { display: flex; align-items: center; justify-content: center; font-size: 12px; font-family: 'DM Mono', monospace; color: #bbb; line-height: 1; }
+.memo-n.on { color: #185FA5; }
+.msg-bar {
+  text-align: center; font-size: 13px; color: #888; margin-bottom: 0.3rem; min-height: 18px;
+  letter-spacing: 0.05em;
+}
+.numpad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-bottom: 0.4rem; padding: 0 0.4rem; }
+.num-btn {
+  padding: 16px 4px; font-size: 32px; font-weight: 400; border-radius: 8px;
+  border: 1.5px solid #e0ddd8; background: #fff; color: #1a1a1a;
+  cursor: pointer; transition: all 0.1s;
+  font-family: 'DM Mono', monospace;
+}
+.num-btn:hover { background: #f0ede8; }
+.num-btn.erase-btn { font-size: 13px; color: #aaa; font-family: 'Noto Serif JP', serif; }
+.num-btn.completed { background: #f0f0f0 !important; color: #ccc !important; border-color: #e8e8e8 !important; cursor: default; text-decoration: line-through; }
+.action-row { display: flex; gap: 6px; padding: 0 0.4rem; }
+.action-btn {
+  flex: 1; padding: 9px 4px; font-size: 12px; border-radius: 8px;
+  border: 1.5px solid #e0ddd8; background: #fff; color: #444;
+  cursor: pointer; transition: all 0.1s; letter-spacing: 0.05em;
+  font-family: 'Noto Serif JP', serif;
+}
+.action-btn:hover { background: #f0ede8; }
+.action-btn.memo-on { background: #1a1a1a !important; color: #fff !important; border-color: #1a1a1a !important; }
+
+/* ── Win overlay ── */
+.win-overlay {
+  position: fixed; inset: 0; background: #050514;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 50; opacity: 0; pointer-events: none; transition: opacity 0.4s;
+}
+.win-overlay.show { opacity: 1; pointer-events: all; }
+#fireworksCanvas {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  transition: opacity 0.6s; cursor: pointer; image-rendering: pixelated;
+}
+#winContent {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center;
+  opacity: 0; transition: opacity 0.6s;
+  background: rgba(247,246,243,0.95); border-radius: 20px;
+  padding: 40px 48px;
+}
+.win-icon { font-size: 52px; margin-bottom: 1rem; }
+.win-title { font-size: 24px; font-weight: 300; letter-spacing: 0.15em; color: #1a1a1a; margin-bottom: 0.5rem; }
+.win-praise {
+  font-size: 13px; color: #635bff; letter-spacing: 0.08em;
+  margin-bottom: 0.5rem; font-weight: 400; min-height: 0;
+}
+.win-time { font-size: 13px; font-family: 'DM Mono', monospace; color: #888; margin-bottom: 2rem; }
+.win-btns { display: flex; gap: 10px; }
+.win-btn {
+  padding: 12px 24px; border-radius: 8px; border: 1.5px solid #1a1a1a;
+  font-family: 'Noto Serif JP', serif; font-size: 13px; letter-spacing: 0.1em;
+  cursor: pointer; transition: all 0.15s;
+}
+.win-btn.primary { background: #1a1a1a; color: #fff; }
+.win-btn.primary:hover { background: #333; }
+.win-btn.secondary { background: #fff; color: #1a1a1a; }
+.win-btn.secondary:hover { background: #f0ede8; }
+
+
+/* ════════════════════════════════
+   DIFF SELECT SCREEN
+════════════════════════════════ */
+#scr-diff { background: #f7f6f3; }
+.diff-scr-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.25rem 0.75rem;
+  border-bottom: 1px solid #e8e5e0;
+}
+.dh-back {
+  font-size: 14px; color: #888; cursor: pointer; padding: 4px 0;
+  background: none; border: none; font-family: 'Noto Serif JP', serif;
+  letter-spacing: 0.05em;
+}
+.dh-logo { font-size: 16px; font-weight: 300; letter-spacing: 0.12em; color: #1a1a1a; }
+.diff-scr-body { padding: 1.5rem 1.25rem; display: flex; flex-direction: column; }
+.diff-select-label {
+  font-size: 10px; letter-spacing: 0.2em; color: #bbb; margin-bottom: 1rem;
+}
+.diff-btn-list { display: flex; flex-direction: column; gap: 10px; }
+.diff-btn {
+  width: 100%; padding: 16px 18px;
+  background: #fff; border: 1.5px solid #e0ddd8; border-radius: 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; transition: all 0.15s; text-align: left;
+}
+.diff-btn:hover { border-color: #aaa; transform: translateY(-1px); background: #f0ede8; }
+.diff-btn-left { display: flex; align-items: center; gap: 14px; }
+.diff-btn-num {
+  width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+  background: #1a1a1a; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-family: 'DM Mono', monospace;
+}
+.diff-btn-name {
+  font-size: 16px; letter-spacing: 0.06em; color: #1a1a1a;
+  font-family: 'Noto Serif JP', serif;
+}
+.diff-btn-badge {
+  font-size: 10px; font-family: 'DM Mono', monospace;
+  color: #888; background: #eee; border-radius: 20px; padding: 4px 10px; flex-shrink: 0;
+}
+.diff-btn-badge.done { background: #1a1a1a; color: #fff; }
+
+/* ════════════════════════════════
+   LIST SCREEN (Problem Select)
+════════════════════════════════ */
+.list-puzzle-body { padding: 1.5rem 1.25rem; }
+.list-puzzle-body .puzzle-grid { grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.list-puzzle-body .pz-btn .pz-num { font-size: 18px; }
+</style>
+</head>
+<body>
+<div id="root">
+
+  <!-- ════ OPENING ════ -->
+  <div id="scr-opening" class="screen active">
+    <div class="op-grid" id="opGrid"></div>
+    <div class="op-logo">
+      <span class="op-logo-main">シンプルナンプレ100</span>
+      <span class="op-logo-sub">S I M P L E  N A N P U R E  1 0 0</span>
+    </div>
+    <div class="op-date" id="opDate"></div>
+    <button class="op-start-btn" id="opStartBtn">体験版</button>
+    <div class="op-btn-note">まずはご自身の腕前をご確認ください</div>
+    <button class="op-start-btn-sub" id="opNormalBtn">通常版</button>
+    <div class="op-btn-note" style="animation-delay:1.25s">こちらから各難易度別に、問題100個を100円で購入できます</div>
+  </div>
+
+  <!-- ════ DIFF SELECT ════ -->
+  <div id="scr-diff" class="screen">
+    <div class="diff-scr-header">
+      <button class="dh-back" id="dhBack">← もどる</button>
+      <span class="dh-logo">シンプルナンプレ100</span>
+      <span></span>
+    </div>
+    <div class="diff-scr-body">
+      <div class="diff-select-label">DIFFICULTY</div>
+      <div id="diffBtnList" class="diff-btn-list"></div>
+    </div>
+  </div>
+
+  <!-- ════ LIST（問題選択） ════ -->
+  <div id="scr-list" class="screen">
+    <div class="list-header">
+      <button class="lh-back" id="lhBack">← もどる</button>
+      <span class="list-logo" id="listDiffTitle"></span>
+      <span class="list-date-badge" id="listDateBadge"></span>
+    </div>
+    <div class="list-puzzle-body" id="listBody"></div>
+  </div>
+
+  <!-- ════ GAME ════ -->
+  <div id="scr-game" class="screen">
+    <div class="game-header">
+      <button class="gh-back" id="ghBack">← 一覧</button>
+      <span class="gh-title" id="ghTitle"></span>
+      <span class="gh-pager" id="ghPager"></span>
+    </div>
+    <div class="game-body">
+      <div class="stats-row">
+        <div class="stat"><div class="stat-label">時間</div><div class="stat-val" id="timer">0:00</div></div>
+        <div class="stat"><div class="stat-label">ミス</div><div class="stat-val" id="errors">0</div></div>
+        <div class="stat"><div class="stat-label">残り</div><div class="stat-val" id="remaining">—</div></div>
+      </div>
+      <div class="board-wrap"><div class="board" id="board"></div></div>
+      <div class="msg-bar" id="msgBar"></div>
+      <div class="numpad" id="numpad"></div>
+      <div class="action-row">
+        <button class="action-btn" id="btnUndo" onclick="undo()">↩ 戻す</button>
+        <button class="action-btn" id="btnMemo" onclick="toggleMemo()">✏️ メモ</button>
+        <button class="action-btn" id="btnHint" onclick="hint()">ヒント</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Win overlay -->
+  <div class="win-overlay" id="winOverlay">
+    <canvas id="fireworksCanvas"></canvas>
+    <div id="winContent">
+      <div class="win-icon" id="winIcon">🎉</div>
+      <div class="win-title" id="winTitle">クリア！</div>
+      <div class="win-praise" id="winPraise"></div>
+      <div class="win-time" id="winTime"></div>
+      <div class="win-btns">
+        <button class="win-btn secondary" onclick="goList()">一覧へ</button>
+        <button class="win-btn primary" id="winNextBtn" onclick="playNext()">次の問題</button>
+      </div>
+    </div>
+  </div>
+
+
+
+</div><!-- /root -->
+
+<!-- 購入確認モーダル -->
+<div class="purchase-modal" id="purchaseModal">
+  <div class="purchase-modal-card">
+    <div class="purchase-modal-title" id="purchaseModalTitle">問題集を購入</div>
+    <div class="purchase-modal-body" id="purchaseModalBody"></div>
+    <div class="purchase-modal-btns">
+      <button class="purchase-btn-cancel" id="purchaseCancelBtn">キャンセル</button>
+      <button class="purchase-btn-ok" id="purchaseOkBtn">¥100 で購入する</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// SEEDED PRNG (Mulberry32)
+// ════════════════════════════════════════
+function mulberry32(seed) {
+  return function() {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function seededShuffle(arr, rng) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ════════════════════════════════════════
+// DATE & SEED
+// ════════════════════════════════════════
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+}
+function dateLabel() {
+  const d = new Date();
+  return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+}
+function dateSeed() {
+  const s = todayStr();
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = Math.imul(31, h) + s.charCodeAt(i) | 0;
+  return h >>> 0;
+}
+
+// ════════════════════════════════════════
+// SUDOKU GENERATION (seeded)
+// ════════════════════════════════════════
+const REMOVE_COUNT = { 1: 30, 2: 36, 3: 43, 4: 50, 5: 56 };
+
+function isValid(grid, row, col, num) {
+  for (let i = 0; i < 9; i++) {
+    if (grid[row][i] === num || grid[i][col] === num) return false;
+  }
+  const br = Math.floor(row/3)*3, bc = Math.floor(col/3)*3;
+  for (let r = br; r < br+3; r++)
+    for (let c = bc; c < bc+3; c++)
+      if (grid[r][c] === num) return false;
+  return true;
+}
+
+function fillGrid(grid, rng) {
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      if (grid[r][c] === 0) {
+        const nums = seededShuffle([1,2,3,4,5,6,7,8,9], rng);
+        for (const n of nums) {
+          if (isValid(grid, r, c, n)) {
+            grid[r][c] = n;
+            if (fillGrid(grid, rng)) return true;
+            grid[r][c] = 0;
+          }
+        }
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+function countSols(grid, limit) {
+  let count = 0;
+  function solve(g) {
+    for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) {
+      if (g[r][c] === 0) {
+        for (let n = 1; n <= 9; n++) {
+          if (isValid(g, r, c, n)) {
+            g[r][c] = n; solve(g); g[r][c] = 0;
+            if (count >= limit) return;
+          }
+        }
+        return;
+      }
+    }
+    count++;
+  }
+  solve(grid.map(r => [...r]));
+  return count;
+}
+
+function generatePuzzle(diff, rng) {
+  const sol = Array.from({length:9}, () => Array(9).fill(0));
+  fillGrid(sol, rng);
+  const puz = sol.map(r => [...r]);
+  const cells = seededShuffle([...Array(81).keys()], rng);
+  let removed = 0, target = REMOVE_COUNT[diff];
+  for (const idx of cells) {
+    if (removed >= target) break;
+    const r = Math.floor(idx/9), c = idx%9;
+    const bk = puz[r][c];
+    puz[r][c] = 0;
+    if (diff <= 3 && countSols(puz, 2) !== 1) { puz[r][c] = bk; continue; }
+    removed++;
+  }
+  return { puzzle: puz, solution: sol };
+}
+
+// ════════════════════════════════════════
+// DAILY PUZZLE BANK
+// Build 25 puzzles (diff 1×5, 2×5 ... 5×5)
+// seeded by today's date so all users get same puzzles
+// ════════════════════════════════════════
+let currentMode = 'trial'; // 'trial' | 'normal'
+let NORMAL_CACHE = {};    // diff → [{diff, idx, puzzle, solution}]
+
+let PUZZLES = []; // [{diff, puzzle, solution}]
+let PROGRESS = {}; // key="d{diff}-{idx}" val={cleared, time, errors}
+
+function buildDailyPuzzles() {
+  PUZZLES = [];
+  const base = dateSeed();
+  for (let diff = 1; diff <= 5; diff++) {
+    for (let i = 0; i < 5; i++) {
+      const seed = (base ^ (diff * 1000 + i) * 0x9E3779B9) >>> 0;
+      const rng = mulberry32(seed);
+      const { puzzle, solution } = generatePuzzle(diff, rng);
+      PUZZLES.push({ diff, idx: i, puzzle, solution });
+    }
+  }
+}
+
+// 通常版：指定難易度×セットの100問を生成（キャッシュ付き）
+function buildNormalPuzzlesForSet(diff, setIdx) {
+  const cacheKey = `${diff}_${setIdx}`;
+  if (NORMAL_CACHE[cacheKey]) return NORMAL_CACHE[cacheKey];
+  const puzzles = [];
+  for (let i = 0; i < 100; i++) {
+    const seed = (0xC0DE0000 ^ (diff * 9973 + setIdx * 997 + i + 1) * 0x9E3779B9) >>> 0;
+    const rng = mulberry32(seed);
+    const { puzzle, solution } = generatePuzzle(diff, rng);
+    puzzles.push({ diff, setIdx, idx: i, puzzle, solution });
+  }
+  NORMAL_CACHE[cacheKey] = puzzles;
+  return puzzles;
+}
+
+function progressKey(diff, idx) { return `d${diff}-${idx}`; }
+function progressKeyNormal(diff, setIdx, idx) { return `d${diff}-s${setIdx}-${idx}`; }
+
+function loadProgress() {
+  try {
+    if (currentMode === 'normal') {
+      const saved = localStorage.getItem('nanpure100_normal');
+      return saved ? JSON.parse(saved) : {};
+    } else {
+      const saved = localStorage.getItem('nanpure100_progress');
+      if (!saved) return {};
+      const data = JSON.parse(saved);
+      if (data.date !== todayStr()) return {};
+      return data.progress || {};
+    }
+  } catch { return {}; }
+}
+
+function saveProgress() {
+  if (currentMode === 'normal') {
+    localStorage.setItem('nanpure100_normal', JSON.stringify(PROGRESS));
+  } else {
+    localStorage.setItem('nanpure100_progress', JSON.stringify({
+      date: todayStr(),
+      progress: PROGRESS
+    }));
+  }
+}
+
+// ════════════════════════════════════════
+// PURCHASE / LICENSE（問題集単位）
+// ════════════════════════════════════════
+// ★ Stripe Payment LinkのURLをここに設定してください
+const STRIPE_PAYMENT_LINK = 'https://gentle-genie-82635d.netlify.app/?nanpure_paid=1';
+
+// 問題集ごとの購入チェック（diff: 1-5, setIdx: 0-4）
+function isPurchasedSet(diff, setIdx) {
+  return localStorage.getItem(`nanpure_set_${diff}_${setIdx}`) === 'true';
+}
+
+function unlockSet(diff, setIdx) {
+  localStorage.setItem(`nanpure_set_${diff}_${setIdx}`, 'true');
+}
+
+// 購入完了後のリダイレクトを検知（?nanpure_paid=d1s0 など）
+(function checkPurchaseReturn() {
+  const params = new URLSearchParams(window.location.search);
+  const paid = params.get('nanpure_paid');
+  if (paid) {
+    const m = paid.match(/^d(\d)s(\d)$/);
+    if (m) unlockSet(parseInt(m[1]), parseInt(m[2]));
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+})();
+
+// 通常版ボタンは常にアンロック表示（購入は問題集単位）
+function updateNormalBtn() {
+  const btn = document.getElementById('opNormalBtn');
+  btn.classList.remove('locked');
+  btn.innerHTML = '通常版';
+}
+
+// ════════════════════════════════════════
+// SCREENS
+// ════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ════════════════════════════════════════
+// OPENING SCREEN
+// ════════════════════════════════════════
+(function initOpening() {
+  document.getElementById('opDate').textContent = dateLabel();
+
+  // decorative mini grid
+  const sample = [
+    [5,3,0,0,7,0,0,0,0],[6,0,0,1,9,5,0,0,0],[0,9,8,0,0,0,0,6,0],
+    [8,0,0,0,6,0,0,0,3],[4,0,0,8,0,3,0,0,1],[7,0,0,0,2,0,0,0,6],
+    [0,6,0,0,0,0,2,8,0],[0,0,0,4,1,9,0,0,5],[0,0,0,0,8,0,0,7,9],
+  ];
+  const g = document.getElementById('opGrid');
+  let delay = 0;
+  for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) {
+    const cell = document.createElement('div');
+    cell.className = 'op-cell' + (sample[r][c] ? ' filled' : '') + (c===2||c===5?' br':'') + (r===2||r===5?' bb':'');
+    if (sample[r][c]) cell.textContent = sample[r][c];
+    cell.style.animationDelay = (delay * 0.016) + 's';
+    delay++;
+    g.appendChild(cell);
+  }
+
+  // 体験版を遊ぶ
+  document.getElementById('opStartBtn').addEventListener('click', () => {
+    currentMode = 'trial';
+    buildDailyPuzzles();
+    PROGRESS = loadProgress();
+    showDiffScreen();
+  });
+
+  // 通常版を遊ぶ
+  document.getElementById('opNormalBtn').addEventListener('click', () => {
+    currentMode = 'normal';
+    PUZZLES = [];
+    PROGRESS = loadProgress();
+    showDiffScreen();
+  });
+
+  // 購入状態を反映
+  updateNormalBtn();
+})();
+
+// ════════════════════════════════════════
+// DIFF SELECT SCREEN（難易度選択）
+// ════════════════════════════════════════
+const DIFF_NAMES = { 1:'かんたん', 2:'やさしい', 3:'ふつう', 4:'むずかしい', 5:'げきむず' };
+let currentDiff = 1;
+let currentSetIdx = -1; // -1 = set list; 0-4 = specific set
+
+function showDiffScreen() {
+  showScreen('scr-diff');
+  renderDiffButtons();
+}
+
+function renderDiffButtons() {
+  const list = document.getElementById('diffBtnList');
+  list.innerHTML = '';
+  const total = currentMode === 'normal' ? 100 : 5;
+  for (let diff = 1; diff <= 5; diff++) {
+    let clearedCount;
+    if (currentMode === 'normal') {
+      // PROMGRESSから直接カウント（パズル未生成でもOK）
+      clearedCount = 0;
+      for (let i = 0; i < 100; i++) {
+        if (PROGRESS[progressKey(diff, i)]?.cleared) clearedCount++;
+      }
+    } else {
+      const puzzlesOfDiff = PUZZLES.filter(p => p.diff === diff);
+      clearedCount = puzzlesOfDiff.filter(p => PROGRESS[progressKey(p.diff, p.idx)]?.cleared).length;
+    }
+    const btn = document.createElement('button');
+    btn.className = 'diff-btn';
+    btn.innerHTML = `
+      <div class="diff-btn-left">
+
+        <span class="diff-btn-name">${DIFF_NAMES[diff]}</span>
+      </div>
+      ${currentMode === 'trial' ? `<span class="diff-btn-badge ${clearedCount===total?'done':''}">${clearedCount} / ${total}</span>` : ''}
+    `;
+    btn.addEventListener('click', () => showListScreen(diff));
+    list.appendChild(btn);
+  }
+}
+
+document.getElementById('dhBack').addEventListener('click', () => showScreen('scr-opening'));
+
+// ════════════════════════════════════════
+// LIST SCREEN（問題選択）
+// ════════════════════════════════════════
+function showListScreen(diff) {
+  currentDiff = diff;
+  if (currentMode === 'normal') {
+    currentSetIdx = -1; // 問題集選択画面へ
+  }
+  showScreen('scr-list');
+  document.getElementById('listDateBadge').textContent =
+    currentMode === 'normal' ? '通常版' : dateLabel();
+  document.getElementById('listDiffTitle').textContent = DIFF_NAMES[diff];
+  renderListBody();
+}
+
+function renderListBody() {
+  const body = document.getElementById('listBody');
+  body.innerHTML = '';
+
+  if (currentMode === 'normal') {
+    if (currentSetIdx === -1) {
+      // 問題集（Vol.）選択
+      renderSetButtons();
+      return;
+    }
+    // 購入済み問題集の100問グリッド
+    document.getElementById('listDiffTitle').textContent =
+      `${DIFF_NAMES[currentDiff]}　Vol.${currentSetIdx + 1}`;
+    const grid = document.createElement('div');
+    grid.className = 'pz-grid-normal';
+    for (let i = 0; i < 100; i++) {
+      const key = progressKeyNormal(currentDiff, currentSetIdx, i);
+      const prog = PROGRESS[key];
+      const btn = document.createElement('button');
+      btn.className = 'pz-btn-normal' + (prog?.cleared ? ' cleared' : prog ? ' in-progress' : '');
+      btn.innerHTML = `
+        <span>${String(i+1).padStart(2,'0')}</span>
+        ${prog?.cleared ? '<span class="pz-chk-sm">✓</span>' : ''}
+      `;
+      btn.addEventListener('click', () => startGame(currentDiff, i));
+      grid.appendChild(btn);
+    }
+    body.appendChild(grid);
+    return;
+  }
+
+  // 体験版：既存の5問レイアウト
+  const grid = document.createElement('div');
+  grid.className = 'puzzle-grid';
+  const puzzlesOfDiff = PUZZLES.filter(p => p.diff === currentDiff);
+  puzzlesOfDiff.forEach((pz, i) => {
+    const key = progressKey(pz.diff, pz.idx);
+    const prog = PROGRESS[key];
+    const btn = document.createElement('button');
+    btn.className = 'pz-btn' + (prog?.cleared ? ' cleared' : prog ? ' in-progress' : '');
+    const timeStr = prog?.cleared && prog.time
+      ? (() => { const m=Math.floor(prog.time/60),s=prog.time%60; return m+':'+String(s).padStart(2,'0'); })()
+      : '';
+    btn.innerHTML = `
+      <span class="pz-num">${String(i+1).padStart(2,'0')}</span>
+      <span class="pz-status">${prog?.cleared ? timeStr : prog ? '途中' : ''}</span>
+      ${prog?.cleared ? '<span class="pz-check">✓</span>' : ''}
+    `;
+    btn.addEventListener('click', () => startGame(pz.diff, pz.idx));
+    grid.appendChild(btn);
+  });
+  body.appendChild(grid);
+}
+
+function renderSetButtons() {
+  document.getElementById('listDiffTitle').textContent = DIFF_NAMES[currentDiff];
+  const body = document.getElementById('listBody');
+  body.innerHTML = '';
+  const list = document.createElement('div');
+  list.className = 'set-btn-list';
+  for (let s = 0; s < 5; s++) {
+    const purchased = isPurchasedSet(currentDiff, s);
+    const btn = document.createElement('button');
+    btn.className = 'set-btn' + (purchased ? ' purchased' : '');
+    btn.innerHTML = `
+      <div class="set-btn-left">
+        <span class="set-btn-vol">Vol.${s + 1}</span>
+        <span class="set-btn-range">問題 ${s * 100 + 1}〜${(s + 1) * 100}</span>
+      </div>
+      <div class="set-btn-right">
+        ${purchased
+          ? '<span class="set-btn-badge-purchased">購入済</span>'
+          : '<span class="set-btn-badge-locked">¥100</span>'}
+      </div>
+    `;
+    btn.addEventListener('click', () => {
+      if (purchased) {
+        currentSetIdx = s;
+        const setData = buildNormalPuzzlesForSet(currentDiff, s);
+        PUZZLES = PUZZLES.filter(p => !(p.diff === currentDiff && p.setIdx === s)).concat(setData);
+        renderListBody();
+      } else {
+        showPurchaseModal(currentDiff, s);
+      }
+    });
+    list.appendChild(btn);
+  }
+  body.appendChild(list);
+}
+
+function showPurchaseModal(diff, setIdx) {
+  document.getElementById('purchaseModalTitle').textContent = `Vol.${setIdx + 1} を購入`;
+  document.getElementById('purchaseModalBody').innerHTML =
+    `<strong>${DIFF_NAMES[diff]}　Vol.${setIdx + 1}</strong><br>問題${setIdx * 100 + 1}〜${(setIdx + 1) * 100}（100問）<br><br>¥100 で購入しますか？`;
+  const modal = document.getElementById('purchaseModal');
+  modal.classList.add('show');
+  document.getElementById('purchaseCancelBtn').onclick = () => modal.classList.remove('show');
+  document.getElementById('purchaseOkBtn').onclick = () => {
+    modal.classList.remove('show');
+    // 購入完了をシミュレート（Stripe連携時はここをStripe Payment Linkに差し替え）
+    const url = new URL(window.location.href);
+    url.searchParams.set('nanpure_paid', `d${diff}s${setIdx}`);
+    window.location.href = url.toString();
+  };
+}
+
+document.getElementById('lhBack').addEventListener('click', () => {
+  if (currentMode === 'normal' && currentSetIdx >= 0) {
+    currentSetIdx = -1;
+    renderListBody();
+  } else {
+    showDiffScreen();
+  }
+});
+
+// ════════════════════════════════════════
+// GAME SCREEN
+// ════════════════════════════════════════
+let puzzle, solution, userGrid, memoGrid, selected, errorCount, timerSec, timerInt, memoMode;
+let currentPuzzleDiff, currentPuzzleIdx;
+
+function startGame(diff, idx) {
+  let pz;
+  if (currentMode === 'normal') {
+    pz = PUZZLES.find(p => p.diff === diff && p.setIdx === currentSetIdx && p.idx === idx);
+  } else {
+    pz = PUZZLES.find(p => p.diff === diff && p.idx === idx);
+  }
+  currentPuzzleDiff = diff;
+  currentPuzzleIdx = idx;
+  puzzle = pz.puzzle;
+  solution = pz.solution;
+
+  // restore or fresh
+  const key = currentMode === 'normal'
+    ? progressKeyNormal(diff, currentSetIdx, idx)
+    : progressKey(diff, idx);
+  const prog = PROGRESS[key];
+
+  if (prog && !prog.cleared && prog.userGrid) {
+    userGrid = prog.userGrid.map(r => [...r]);
+    memoGrid = prog.memoGrid
+      ? prog.memoGrid.map(r => r.map(s => new Set(s)))
+      : Array.from({length:9}, () => Array.from({length:9}, () => new Set()));
+    errorCount = prog.errors || 0;
+    timerSec = prog.timerSec || 0;
+  } else if (!prog?.cleared) {
+    userGrid = puzzle.map(r => [...r]);
+    memoGrid = Array.from({length:9}, () => Array.from({length:9}, () => new Set()));
+    errorCount = 0;
+    timerSec = 0;
+  } else {
+    // already cleared, replay fresh
+    userGrid = puzzle.map(r => [...r]);
+    memoGrid = Array.from({length:9}, () => Array.from({length:9}, () => new Set()));
+    errorCount = 0;
+    timerSec = 0;
+  }
+
+  selected = null;
+  memoMode = false;
+  document.getElementById('btnMemo').classList.remove('memo-on');
+  document.getElementById('winOverlay').classList.remove('show');
+
+  // header
+  document.getElementById('ghTitle').textContent = `難易度${diff}　${DIFF_NAMES[diff]}`;
+  const total = currentMode === 'normal' ? 100 : 5;
+  const padLen = currentMode === 'normal' ? 3 : 2;
+  const totalStr = currentMode === 'normal' ? '100' : '05';
+  document.getElementById('ghPager').textContent = `${String(idx+1).padStart(padLen,'0')} / ${totalStr}`;
+  document.getElementById('errors').textContent = errorCount;
+
+  clearInterval(timerInt);
+  updateTimer();
+  timerInt = setInterval(() => {
+    timerSec++;
+    updateTimer();
+    autoSave();
+  }, 1000);
+
+  showScreen('scr-game');
+  renderBoard();
+  renderNumpad();
+  updateNumpad();
+  updateRemaining();
+  document.getElementById('msgBar').textContent = '';
+}
+
+function autoSave() {
+  const key = currentMode === 'normal'
+    ? progressKeyNormal(currentPuzzleDiff, currentSetIdx, currentPuzzleIdx)
+    : progressKey(currentPuzzleDiff, currentPuzzleIdx);
+  if (!PROGRESS[key]) PROGRESS[key] = {};
+  if (!PROGRESS[key].cleared) {
+    PROGRESS[key].userGrid = userGrid.map(r => [...r]);
+    PROGRESS[key].memoGrid = memoGrid.map(r => r.map(s => [...s]));
+    PROGRESS[key].errors = errorCount;
+    PROGRESS[key].timerSec = timerSec;
+    saveProgress();
+  }
+}
+
+function goList() {
+  clearInterval(timerInt);
+  document.getElementById('winOverlay').classList.remove('show');
+  if (currentMode === 'normal') {
+    // セットの問題グリッドへ戻る
+    showScreen('scr-list');
+    renderListBody();
+  } else {
+    showListScreen(currentPuzzleDiff);
+  }
+}
+
+function playNext() {
+  document.getElementById('winOverlay').classList.remove('show');
+  if (currentMode === 'normal') {
+    // 通常版：同じセット内の次の未クリア問題
+    for (let i = currentPuzzleIdx + 1; i < 100; i++) {
+      if (!PROGRESS[progressKeyNormal(currentPuzzleDiff, currentSetIdx, i)]?.cleared) {
+        startGame(currentPuzzleDiff, i);
+        return;
+      }
+    }
+    goList();
+  } else {
+    // 体験版：同じ難易度の次の未クリア問題
+    const sameDiff = PUZZLES.filter(p => {
+      const k = progressKey(p.diff, p.idx);
+      return p.diff === currentPuzzleDiff && p.idx > currentPuzzleIdx && !PROGRESS[k]?.cleared;
+    });
+    if (sameDiff.length) {
+      startGame(sameDiff[0].diff, sameDiff[0].idx);
+    } else {
+      goList();
+    }
+  }
+}
+
+// ════════════════════════════════════════
+// FIREWORKS ANIMATION (retro pixel art)
+// ════════════════════════════════════════
+function launchFireworks() {
+  const canvas = document.getElementById('fireworksCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const PX = 4; // pixel block size for retro look
+  const PALETTE = [
+    '#ff2222','#ff8800','#ffee00','#44ff44',
+    '#00ffff','#ff44ff','#ffffff','#ff88aa',
+    '#88ffff','#ffaa44'
+  ];
+  const DURATION = 180; // ~3 sec at 60fps
+  let frame = 0;
+  let particles = [];
+  let rockets = [];
+  let animId = null;
+
+  // スキップ：クリックで花火をスキップ
+  function skipFireworks() {
+    cancelAnimationFrame(animId);
+    canvas.removeEventListener('click', skipFireworks);
+    showWinContent();
+  }
+  canvas.addEventListener('click', skipFireworks);
+
+  function showWinContent() {
+    canvas.style.opacity = '0';
+    document.getElementById('winContent').style.opacity = '1';
+  }
+
+  class Rocket {
+    constructor() {
+      this.x = canvas.width * (0.15 + Math.random() * 0.7);
+      this.y = canvas.height;
+      this.speed = 9 + Math.random() * 5;
+      this.targetY = canvas.height * (0.08 + Math.random() * 0.35);
+      this.color = PALETTE[Math.floor(Math.random() * PALETTE.length)];
+      this.done = false;
+    }
+    update() {
+      this.y -= this.speed;
+      if (this.y <= this.targetY) { this.explode(); this.done = true; }
+    }
+    draw() {
+      const px = Math.round(this.x / PX) * PX;
+      const py = Math.round(this.y / PX) * PX;
+      ctx.fillStyle = this.color;
+      ctx.fillRect(px, py, PX, PX * 3);
+    }
+    explode() {
+      const c1 = this.color;
+      const c2 = PALETTE[Math.floor(Math.random() * PALETTE.length)];
+      // 外側リング
+      for (let i = 0; i < 32; i++) {
+        const a = (i / 32) * Math.PI * 2;
+        const spd = 3 + Math.random() * 3;
+        particles.push(new Particle(this.x, this.y, Math.cos(a)*spd, Math.sin(a)*spd, c1));
+      }
+      // 内側リング（別色）
+      for (let i = 0; i < 16; i++) {
+        const a = (i / 16) * Math.PI * 2 + 0.3;
+        const spd = 1.5 + Math.random() * 2;
+        particles.push(new Particle(this.x, this.y, Math.cos(a)*spd, Math.sin(a)*spd, c2));
+      }
+      // 中心ぴかっ
+      particles.push(new Particle(this.x, this.y, 0, 0, '#ffffff', 0.04));
+    }
+  }
+
+  class Particle {
+    constructor(x, y, vx, vy, color, decay) {
+      this.x = x; this.y = y;
+      this.vx = vx; this.vy = vy;
+      this.color = color;
+      this.life = 1.0;
+      this.decay = decay || (0.012 + Math.random() * 0.014);
+    }
+    update() {
+      this.x += this.vx;
+      this.y += this.vy;
+      this.vy += 0.1; // gravity
+      this.vx *= 0.96;
+      this.life -= this.decay;
+    }
+    draw() {
+      if (this.life <= 0) return;
+      ctx.globalAlpha = Math.max(0, this.life);
+      ctx.fillStyle = this.color;
+      const px = Math.round(this.x / PX) * PX;
+      const py = Math.round(this.y / PX) * PX;
+      ctx.fillRect(px, py, PX, PX);
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  // 打ち上げタイミング（フレーム番号）
+  const schedule = [0, 18, 38, 60, 80, 100, 122, 145, 162];
+
+  ctx.fillStyle = '#050514';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  function animate() {
+    if (frame >= DURATION) {
+      canvas.removeEventListener('click', skipFireworks);
+      showWinContent();
+      return;
+    }
+    if (schedule.includes(frame)) rockets.push(new Rocket());
+
+    // 残像（ドット絵らしい暗いトレイル）
+    ctx.fillStyle = 'rgba(5, 5, 20, 0.28)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    rockets = rockets.filter(r => !r.done);
+    rockets.forEach(r => { r.update(); r.draw(); });
+    particles = particles.filter(p => p.life > 0);
+    particles.forEach(p => { p.update(); p.draw(); });
+
+    frame++;
+    animId = requestAnimationFrame(animate);
+  }
+  animate();
+}
+
+function updateTimer() {
+  const m = Math.floor(timerSec/60), s = timerSec%60;
+  document.getElementById('timer').textContent = m + ':' + String(s).padStart(2,'0');
+}
+
+function updateRemaining() {
+  let cnt = 0;
+  for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) if (userGrid[r][c] === 0) cnt++;
+  document.getElementById('remaining').textContent = cnt;
+}
+
+function renderBoard() {
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  const selVal = selected ? userGrid[selected[0]][selected[1]] : 0;
+  const sr = selected ? selected[0] : -1, sc = selected ? selected[1] : -1;
+  for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) {
+    const cell = document.createElement('div');
+    let cls = 'cell';
+    if (c===2||c===5) cls += ' br';
+    if (r===2||r===5) cls += ' bb';
+    const val = userGrid[r][c];
+    if (val !== 0) {
+      cell.textContent = val;
+      if (puzzle[r][c] !== 0) cls += ' given';
+      else { cls += ' user-input'; if (val !== solution[r][c]) cls += ' error'; }
+    } else if (memoGrid[r][c].size > 0) {
+      const mg = document.createElement('div'); mg.className = 'memo-g';
+      for (let n = 1; n <= 9; n++) {
+        const mn = document.createElement('div');
+        mn.className = 'memo-n' + (memoGrid[r][c].has(n) ? ' on' : '');
+        mn.textContent = memoGrid[r][c].has(n) ? n : '';
+        mg.appendChild(mn);
+      }
+      cell.appendChild(mg);
+    }
+    if (selected) {
+      if (r===sr && c===sc) cls += ' selected';
+      else if (selVal && val===selVal) cls += ' same-num';
+      else if (r===sr || c===sc) cls += ' row-hl';
+      else if (Math.floor(r/3)===Math.floor(sr/3) && Math.floor(c/3)===Math.floor(sc/3)) cls += ' box-hl';
+    }
+    cell.className = cls;
+    cell.addEventListener('click', () => { selected = [r,c]; renderBoard(); });
+    board.appendChild(cell);
+  }
+}
+
+
+function countInGrid(n) {
+  let cnt = 0;
+  for (let r = 0; r < 9; r++)
+    for (let c = 0; c < 9; c++)
+      if (userGrid[r][c] === n) cnt++;
+  return cnt;
+}
+
+function updateNumpad() {
+  for (let i = 1; i <= 9; i++) {
+    const btn = document.querySelector(`#numpad .num-btn[data-n="${i}"]`);
+    if (!btn) continue;
+    if (countInGrid(i) >= 9) {
+      btn.classList.add('completed');
+    } else {
+      btn.classList.remove('completed');
+    }
+  }
+}
+
+function renderNumpad() {
+  const np = document.getElementById('numpad');
+  np.innerHTML = '';
+  for (let i = 1; i <= 9; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'num-btn';
+    btn.dataset.n = i;
+    btn.textContent = i;
+    btn.addEventListener('click', () => inputNum(i));
+    np.appendChild(btn);
+  }
+  const erase = document.createElement('button');
+  erase.className = 'num-btn erase-btn';
+  erase.textContent = '消す';
+  erase.addEventListener('click', () => inputNum(0));
+  np.appendChild(erase);
+}
+
+function inputNum(n) {
+  if (!selected) return;
+  const [r, c] = selected;
+  if (puzzle[r][c] !== 0) return;
+  if (memoMode && n !== 0) {
+    if (memoGrid[r][c].has(n)) memoGrid[r][c].delete(n);
+    else memoGrid[r][c].add(n);
+    renderBoard(); return;
+  }
+  userGrid[r][c] = n;
+  if (n !== 0) {
+    memoGrid[r][c].clear();
+    for (let i = 0; i < 9; i++) { memoGrid[r][i].delete(n); memoGrid[i][c].delete(n); }
+    const br = Math.floor(r/3)*3, bc = Math.floor(c/3)*3;
+    for (let rr = br; rr < br+3; rr++) for (let cc = bc; cc < bc+3; cc++) memoGrid[rr][cc].delete(n);
+    if (n !== solution[r][c]) {
+      errorCount++;
+      document.getElementById('errors').textContent = errorCount;
+    }
+  }
+  renderBoard(); updateRemaining(); updateNumpad(); checkWin();
+}
+
+function toggleMemo() {
+  memoMode = !memoMode;
+  document.getElementById('btnMemo').classList.toggle('memo-on', memoMode);
+}
+
+function undo() {
+  // simple: clear current cell
+  if (!selected) return;
+  const [r, c] = selected;
+  if (puzzle[r][c] !== 0) return;
+  if (memoGrid[r][c].size > 0) { memoGrid[r][c].clear(); }
+  else { userGrid[r][c] = 0; }
+  renderBoard(); updateRemaining();
+}
+
+function hint() {
+  const empties = [];
+  for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++)
+    if (userGrid[r][c] === 0 || userGrid[r][c] !== solution[r][c]) empties.push([r,c]);
+  if (!empties.length) return;
+  const [r, c] = empties[Math.floor(Math.random() * empties.length)];
+  selected = [r, c];
+  userGrid[r][c] = solution[r][c];
+  memoGrid[r][c].clear();
+  renderBoard(); updateRemaining(); checkWin();
+}
+
+function checkWin() {
+  for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++)
+    if (userGrid[r][c] !== solution[r][c]) return;
+  clearInterval(timerInt);
+  // save as cleared
+  const key = currentMode === 'normal'
+    ? progressKeyNormal(currentPuzzleDiff, currentSetIdx, currentPuzzleIdx)
+    : progressKey(currentPuzzleDiff, currentPuzzleIdx);
+  PROGRESS[key] = { cleared: true, time: timerSec, errors: errorCount };
+  saveProgress();
+  // show win overlay
+  const m = Math.floor(timerSec/60), s = timerSec%60;
+  document.getElementById('winTime').textContent = `タイム ${m}:${String(s).padStart(2,'0')}　ミス ${errorCount}回`;
+  // hide "次の問題" if no more
+  let hasNext;
+  if (currentMode === 'normal') {
+    // 同じセット内の残りを確認
+    hasNext = false;
+    for (let i = currentPuzzleIdx + 1; i < 100; i++) {
+      if (!PROGRESS[progressKeyNormal(currentPuzzleDiff, currentSetIdx, i)]?.cleared) { hasNext = true; break; }
+    }
+  } else {
+    hasNext = PUZZLES.some(p => !PROGRESS[progressKey(p.diff, p.idx)]?.cleared);
+  }
+  document.getElementById('winNextBtn').style.display = hasNext ? '' : 'none';
+
+  const nomiss = errorCount === 0;
+  const PRAISES = [
+    'ノーミス達成！あなたの実力は本物です。',
+    '一度のミスもなく解き切りました！',
+    '完璧です。素晴らしい集中力！',
+    '見事なノーミスクリア！',
+  ];
+  const praise = PRAISES[Math.floor(Math.random() * PRAISES.length)];
+
+  document.getElementById('winIcon').textContent = nomiss ? '🏆' : '🎉';
+  document.getElementById('winTitle').textContent = nomiss ? 'ノーミスクリア！' : 'クリア！';
+  document.getElementById('winPraise').textContent = nomiss ? praise : '';
+
+  const fw = document.getElementById('fireworksCanvas');
+  document.getElementById('winOverlay').classList.add('show');
+
+  if (nomiss) {
+    // ノーミス：花火あり
+    document.getElementById('winContent').style.opacity = '0';
+    fw.style.opacity = '1';
+    launchFireworks();
+  } else {
+    // ミスあり：花火なし、即表示
+    fw.style.opacity = '0';
+    document.getElementById('winContent').style.opacity = '1';
+  }
+}
+
+
+
+// back button
+document.getElementById('ghBack').addEventListener('click', () => {
+  autoSave();
+  goList();
+});
+
+// keyboard
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('scr-game').classList.contains('active')) return;
+  const n = parseInt(e.key);
+  if (n >= 1 && n <= 9) { inputNum(n); return; }
+  if (e.key === 'Backspace' || e.key === 'Delete') { inputNum(0); return; }
+  if (!selected) return;
+  const [r, c] = selected;
+  if (e.key==='ArrowUp'    && r>0) { selected=[r-1,c]; renderBoard(); }
+  if (e.key==='ArrowDown'  && r<8) { selected=[r+1,c]; renderBoard(); }
+  if (e.key==='ArrowLeft'  && c>0) { selected=[r,c-1]; renderBoard(); }
+  if (e.key==='ArrowRight' && c<8) { selected=[r,c+1]; renderBoard(); }
+});
+
+// ════════════════════════════════════════
+// PWA: Service Worker 登録
+// ════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('[SW] 登録完了:', reg.scope))
+      .catch(err => console.log('[SW] 登録失敗:', err));
+  });
+}
+</script>
+</body>
+</html>
