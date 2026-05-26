@@ -739,7 +739,7 @@ function renderDiffButtons() {
 
         <span class="diff-btn-name">${DIFF_NAMES[diff]}</span>
       </div>
-      <span class="diff-btn-badge ${clearedCount===total?'done':''}">${clearedCount} / ${total}</span>
+      ${currentMode === 'trial' ? `<span class="diff-btn-badge ${clearedCount===total?'done':''}">${clearedCount} / ${total}</span>` : ''}
     `;
     btn.addEventListener('click', () => showListScreen(diff));
     list.appendChild(btn);
