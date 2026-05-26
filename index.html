@@ -344,6 +344,10 @@ body {
 }
 .win-icon { font-size: 52px; margin-bottom: 1rem; }
 .win-title { font-size: 24px; font-weight: 300; letter-spacing: 0.15em; color: #1a1a1a; margin-bottom: 0.5rem; }
+.win-praise {
+  font-size: 13px; color: #635bff; letter-spacing: 0.08em;
+  margin-bottom: 0.5rem; font-weight: 400; min-height: 0;
+}
 .win-time { font-size: 13px; font-family: 'DM Mono', monospace; color: #888; margin-bottom: 2rem; }
 .win-btns { display: flex; gap: 10px; }
 .win-btn {
@@ -477,8 +481,9 @@ body {
   <div class="win-overlay" id="winOverlay">
     <canvas id="fireworksCanvas"></canvas>
     <div id="winContent">
-      <div class="win-icon">🎉</div>
-      <div class="win-title">クリア！</div>
+      <div class="win-icon" id="winIcon">🎉</div>
+      <div class="win-title" id="winTitle">クリア！</div>
+      <div class="win-praise" id="winPraise"></div>
       <div class="win-time" id="winTime"></div>
       <div class="win-btns">
         <button class="win-btn secondary" onclick="goList()">一覧へ</button>
@@ -1354,11 +1359,33 @@ function checkWin() {
     hasNext = PUZZLES.some(p => !PROGRESS[progressKey(p.diff, p.idx)]?.cleared);
   }
   document.getElementById('winNextBtn').style.display = hasNext ? '' : 'none';
-  document.getElementById('winContent').style.opacity = '0';
+
+  const nomiss = errorCount === 0;
+  const PRAISES = [
+    'ノーミス達成！あなたの実力は本物です。',
+    '一度のミスもなく解き切りました！',
+    '完璧です。素晴らしい集中力！',
+    '見事なノーミスクリア！',
+  ];
+  const praise = PRAISES[Math.floor(Math.random() * PRAISES.length)];
+
+  document.getElementById('winIcon').textContent = nomiss ? '🏆' : '🎉';
+  document.getElementById('winTitle').textContent = nomiss ? 'ノーミスクリア！' : 'クリア！';
+  document.getElementById('winPraise').textContent = nomiss ? praise : '';
+
   const fw = document.getElementById('fireworksCanvas');
-  fw.style.opacity = '1';
   document.getElementById('winOverlay').classList.add('show');
-  launchFireworks();
+
+  if (nomiss) {
+    // ノーミス：花火あり
+    document.getElementById('winContent').style.opacity = '0';
+    fw.style.opacity = '1';
+    launchFireworks();
+  } else {
+    // ミスあり：花火なし、即表示
+    fw.style.opacity = '0';
+    document.getElementById('winContent').style.opacity = '1';
+  }
 }
 
 
