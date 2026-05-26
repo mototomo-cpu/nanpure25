@@ -269,20 +269,20 @@ body {
 }
 .gh-title { font-size: 14px; font-weight: 300; letter-spacing: 0.1em; color: #555; }
 .gh-pager { font-size: 12px; font-family: 'DM Mono', monospace; color: #bbb; }
-.game-body { padding: 0.3rem 0; flex: 1; display: flex; flex-direction: column; }
-.stats-row { display: flex; gap: 6px; margin-bottom: 0.4rem; padding: 0 0.5rem; }
-.stat { flex: 1; background: #fff; border: 1px solid #e8e5e0; border-radius: 8px; padding: 5px; text-align: center; }
-.stat-label { font-size: 9px; color: #bbb; margin-bottom: 1px; }
-.stat-val { font-size: 14px; font-weight: 400; color: #1a1a1a; font-family: 'DM Mono', monospace; }
-.board-wrap { display: flex; justify-content: center; margin-bottom: 0.4rem; }
+.game-body { padding: 0.5rem 0.5rem; flex: 1; display: flex; flex-direction: column; }
+.stats-row { display: flex; gap: 8px; margin-bottom: 0.6rem; }
+.stat { flex: 1; background: #fff; border: 1px solid #e8e5e0; border-radius: 8px; padding: 8px; text-align: center; }
+.stat-label { font-size: 10px; color: #bbb; margin-bottom: 1px; }
+.stat-val { font-size: 16px; font-weight: 400; color: #1a1a1a; font-family: 'DM Mono', monospace; }
+.board-wrap { display: flex; justify-content: center; margin-bottom: 0.6rem; }
 .board {
   display: grid; grid-template-columns: repeat(9, 1fr);
-  border: 2px solid #444; border-radius: 0; overflow: hidden;
-  width: 100%; aspect-ratio: 1;
+  border: 2px solid #444; border-radius: 5px; overflow: hidden;
+  width: 100%; max-width: 460px; aspect-ratio: 1;
 }
 .cell {
   display: flex; align-items: center; justify-content: center;
-  font-size: 34px; font-weight: 400; cursor: pointer;
+  font-size: 28px; font-weight: 400; cursor: pointer;
   border: 0.5px solid #ddd; color: #1a1a1a; background: #fff;
   transition: background 0.08s; user-select: none;
   position: relative;
@@ -301,12 +301,12 @@ body {
 .memo-n { display: flex; align-items: center; justify-content: center; font-size: 12px; font-family: 'DM Mono', monospace; color: #bbb; line-height: 1; }
 .memo-n.on { color: #185FA5; }
 .msg-bar {
-  text-align: center; font-size: 13px; color: #888; margin-bottom: 0.3rem; min-height: 18px;
+  text-align: center; font-size: 13px; color: #888; margin-bottom: 0.5rem; min-height: 20px;
   letter-spacing: 0.05em;
 }
-.numpad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-bottom: 0.4rem; padding: 0 0.4rem; }
+.numpad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 0.6rem; }
 .num-btn {
-  padding: 16px 4px; font-size: 32px; font-weight: 400; border-radius: 8px;
+  padding: 13px 4px; font-size: 26px; font-weight: 400; border-radius: 8px;
   border: 1.5px solid #e0ddd8; background: #fff; color: #1a1a1a;
   cursor: pointer; transition: all 0.1s;
   font-family: 'DM Mono', monospace;
@@ -314,7 +314,7 @@ body {
 .num-btn:hover { background: #f0ede8; }
 .num-btn.erase-btn { font-size: 13px; color: #aaa; font-family: 'Noto Serif JP', serif; }
 .num-btn.completed { background: #f0f0f0 !important; color: #ccc !important; border-color: #e8e8e8 !important; cursor: default; text-decoration: line-through; }
-.action-row { display: flex; gap: 6px; padding: 0 0.4rem; }
+.action-row { display: flex; gap: 6px; }
 .action-btn {
   flex: 1; padding: 9px 4px; font-size: 12px; border-radius: 8px;
   border: 1.5px solid #e0ddd8; background: #fff; color: #444;
