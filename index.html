@@ -115,6 +115,11 @@ body {
   padding: 2px 6px; border-radius: 10px; letter-spacing: 0.05em;
   font-weight: 400;
 }
+.op-btn-note {
+  font-size: 10px; color: #aaa; letter-spacing: 0.05em;
+  margin-top: 6px; font-family: 'Noto Serif JP', serif;
+  opacity: 0; animation: fadeUp 0.6s 1.1s ease forwards;
+}
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -363,6 +368,7 @@ body {
     </div>
     <div class="op-date" id="opDate"></div>
     <button class="op-start-btn" id="opStartBtn">体験版</button>
+    <div class="op-btn-note">まずはご自身の腕前をご確認ください</div>
     <button class="op-start-btn-sub" id="opNormalBtn">通常版</button>
   </div>
 
