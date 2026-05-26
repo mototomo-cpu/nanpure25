@@ -125,6 +125,59 @@ body {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* 通常版 問題集ボタン */
+.set-btn-list { display: flex; flex-direction: column; gap: 10px; padding: 1rem 1.25rem; }
+.set-btn {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 18px; border-radius: 12px;
+  border: 1.5px solid #e0ddd8; background: #fff;
+  cursor: pointer; transition: all 0.15s; text-align: left;
+}
+.set-btn:hover { border-color: #aaa; transform: translateY(-1px); }
+.set-btn.purchased { border-color: #1a1a1a; }
+.set-btn-left { display: flex; flex-direction: column; gap: 3px; }
+.set-btn-vol { font-size: 16px; font-weight: 300; letter-spacing: 0.1em; color: #1a1a1a; }
+.set-btn-range { font-size: 10px; font-family: 'DM Mono', monospace; color: #aaa; }
+.set-btn-right { font-size: 13px; }
+.set-btn-badge-purchased {
+  font-size: 10px; background: #1a1a1a; color: #fff;
+  padding: 3px 10px; border-radius: 20px; letter-spacing: 0.05em;
+}
+.set-btn-badge-locked {
+  font-size: 10px; background: #635bff; color: #fff;
+  padding: 3px 10px; border-radius: 20px; letter-spacing: 0.05em;
+}
+
+/* 購入確認モーダル */
+.purchase-modal {
+  display: none; position: fixed; inset: 0; z-index: 100;
+  background: rgba(0,0,0,0.5); align-items: center; justify-content: center;
+}
+.purchase-modal.show { display: flex; }
+.purchase-modal-card {
+  background: #fff; border-radius: 16px; padding: 28px 24px;
+  width: calc(100% - 48px); max-width: 340px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.purchase-modal-title {
+  font-size: 16px; font-weight: 300; letter-spacing: 0.1em; color: #1a1a1a;
+  text-align: center;
+}
+.purchase-modal-body { font-size: 13px; color: #888; text-align: center; line-height: 1.8; }
+.purchase-modal-btns { display: flex; gap: 10px; margin-top: 4px; }
+.purchase-btn-cancel {
+  flex: 1; padding: 12px; border-radius: 8px; border: 1.5px solid #e0ddd8;
+  background: #fff; color: #888; font-family: 'Noto Serif JP', serif;
+  font-size: 13px; cursor: pointer; transition: all 0.15s;
+}
+.purchase-btn-cancel:hover { background: #f7f6f3; }
+.purchase-btn-ok {
+  flex: 2; padding: 12px; border-radius: 8px; border: none;
+  background: #635bff; color: #fff; font-family: 'Noto Serif JP', serif;
+  font-size: 13px; cursor: pointer; transition: all 0.15s; letter-spacing: 0.05em;
+}
+.purchase-btn-ok:hover { background: #4f46e5; }
+
 /* 通常版 100問グリッド */
 .pz-grid-normal {
   display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 1rem;
@@ -438,6 +491,18 @@ body {
 
 </div><!-- /root -->
 
+<!-- 購入確認モーダル -->
+<div class="purchase-modal" id="purchaseModal">
+  <div class="purchase-modal-card">
+    <div class="purchase-modal-title" id="purchaseModalTitle">問題集を購入</div>
+    <div class="purchase-modal-body" id="purchaseModalBody"></div>
+    <div class="purchase-modal-btns">
+      <button class="purchase-btn-cancel" id="purchaseCancelBtn">キャンセル</button>
+      <button class="purchase-btn-ok" id="purchaseOkBtn">¥100 で購入する</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ════════════════════════════════════════
 // SEEDED PRNG (Mulberry32)
@@ -573,21 +638,23 @@ function buildDailyPuzzles() {
   }
 }
 
-// 通常版：指定難易度の100問を生成（キャッシュ付き）
-function buildNormalPuzzlesForDiff(diff) {
-  if (NORMAL_CACHE[diff]) return NORMAL_CACHE[diff];
+// 通常版：指定難易度×セットの100問を生成（キャッシュ付き）
+function buildNormalPuzzlesForSet(diff, setIdx) {
+  const cacheKey = `${diff}_${setIdx}`;
+  if (NORMAL_CACHE[cacheKey]) return NORMAL_CACHE[cacheKey];
   const puzzles = [];
   for (let i = 0; i < 100; i++) {
-    const seed = (0xC0DE0000 ^ (diff * 9973 + i + 1) * 0x9E3779B9) >>> 0;
+    const seed = (0xC0DE0000 ^ (diff * 9973 + setIdx * 997 + i + 1) * 0x9E3779B9) >>> 0;
     const rng = mulberry32(seed);
     const { puzzle, solution } = generatePuzzle(diff, rng);
-    puzzles.push({ diff, idx: i, puzzle, solution });
+    puzzles.push({ diff, setIdx, idx: i, puzzle, solution });
   }
-  NORMAL_CACHE[diff] = puzzles;
+  NORMAL_CACHE[cacheKey] = puzzles;
   return puzzles;
 }
 
 function progressKey(diff, idx) { return `d${diff}-${idx}`; }
+function progressKeyNormal(diff, setIdx, idx) { return `d${diff}-s${setIdx}-${idx}`; }
 
 function loadProgress() {
   try {
@@ -616,38 +683,36 @@ function saveProgress() {
 }
 
 // ════════════════════════════════════════
-// PURCHASE / LICENSE
+// PURCHASE / LICENSE（問題集単位）
 // ════════════════════════════════════════
 // ★ Stripe Payment LinkのURLをここに設定してください
 const STRIPE_PAYMENT_LINK = 'https://gentle-genie-82635d.netlify.app/?nanpure_paid=1';
 
-function isPurchased() {
-  return localStorage.getItem('nanpure100_purchased') === 'true';
+// 問題集ごとの購入チェック（diff: 1-5, setIdx: 0-4）
+function isPurchasedSet(diff, setIdx) {
+  return localStorage.getItem(`nanpure_set_${diff}_${setIdx}`) === 'true';
 }
 
-function unlockPurchase() {
-  localStorage.setItem('nanpure100_purchased', 'true');
+function unlockSet(diff, setIdx) {
+  localStorage.setItem(`nanpure_set_${diff}_${setIdx}`, 'true');
 }
 
-// 購入完了後のリダイレクトを検知（?nanpure_paid=1）
+// 購入完了後のリダイレクトを検知（?nanpure_paid=d1s0 など）
 (function checkPurchaseReturn() {
   const params = new URLSearchParams(window.location.search);
-  if (params.get('nanpure_paid') === '1') {
-    unlockPurchase();
+  const paid = params.get('nanpure_paid');
+  if (paid) {
+    const m = paid.match(/^d(\d)s(\d)$/);
+    if (m) unlockSet(parseInt(m[1]), parseInt(m[2]));
     window.history.replaceState({}, '', window.location.pathname);
   }
 })();
 
-// 通常版ボタンの表示を購入状態に応じて更新
+// 通常版ボタンは常にアンロック表示（購入は問題集単位）
 function updateNormalBtn() {
   const btn = document.getElementById('opNormalBtn');
-  if (isPurchased()) {
-    btn.classList.remove('locked');
-    btn.innerHTML = '通常版';
-  } else {
-    btn.classList.add('locked');
-    btn.innerHTML = '🔒 通常版 <span class="op-price-badge">¥100</span>';
-  }
+  btn.classList.remove('locked');
+  btn.innerHTML = '通常版';
 }
 
 // ════════════════════════════════════════
@@ -689,12 +754,8 @@ function showScreen(id) {
     showDiffScreen();
   });
 
-  // 通常版を遊ぶ（未購入ならStripe決済へ）
+  // 通常版を遊ぶ
   document.getElementById('opNormalBtn').addEventListener('click', () => {
-    if (!isPurchased()) {
-      window.location.href = STRIPE_PAYMENT_LINK;
-      return;
-    }
     currentMode = 'normal';
     PUZZLES = [];
     PROGRESS = loadProgress();
@@ -710,6 +771,7 @@ function showScreen(id) {
 // ════════════════════════════════════════
 const DIFF_NAMES = { 1:'かんたん', 2:'やさしい', 3:'ふつう', 4:'むずかしい', 5:'げきむず' };
 let currentDiff = 1;
+let currentSetIdx = -1; // -1 = set list; 0-4 = specific set
 
 function showDiffScreen() {
   showScreen('scr-diff');
@@ -753,17 +815,13 @@ document.getElementById('dhBack').addEventListener('click', () => showScreen('sc
 // ════════════════════════════════════════
 function showListScreen(diff) {
   currentDiff = diff;
+  if (currentMode === 'normal') {
+    currentSetIdx = -1; // 問題集選択画面へ
+  }
   showScreen('scr-list');
   document.getElementById('listDateBadge').textContent =
     currentMode === 'normal' ? '通常版' : dateLabel();
-  document.getElementById('listDiffTitle').textContent = `難易度${diff}　${DIFF_NAMES[diff]}`;
-
-  // 通常版：対象難易度のパズルを生成してPUZZLESにセット
-  if (currentMode === 'normal') {
-    const normalPuzzles = buildNormalPuzzlesForDiff(diff);
-    // 現在の難易度分だけ置き換え
-    PUZZLES = PUZZLES.filter(p => p.diff !== diff).concat(normalPuzzles);
-  }
+  document.getElementById('listDiffTitle').textContent = DIFF_NAMES[diff];
   renderListBody();
 }
 
@@ -772,11 +830,18 @@ function renderListBody() {
   body.innerHTML = '';
 
   if (currentMode === 'normal') {
-    // 5列×20行のコンパクトグリッド
+    if (currentSetIdx === -1) {
+      // 問題集（Vol.）選択
+      renderSetButtons();
+      return;
+    }
+    // 購入済み問題集の100問グリッド
+    document.getElementById('listDiffTitle').textContent =
+      `${DIFF_NAMES[currentDiff]}　Vol.${currentSetIdx + 1}`;
     const grid = document.createElement('div');
     grid.className = 'pz-grid-normal';
     for (let i = 0; i < 100; i++) {
-      const key = progressKey(currentDiff, i);
+      const key = progressKeyNormal(currentDiff, currentSetIdx, i);
       const prog = PROGRESS[key];
       const btn = document.createElement('button');
       btn.className = 'pz-btn-normal' + (prog?.cleared ? ' cleared' : prog ? ' in-progress' : '');
@@ -788,32 +853,92 @@ function renderListBody() {
       grid.appendChild(btn);
     }
     body.appendChild(grid);
-  } else {
-    // 体験版：既存の5問レイアウト
-    const grid = document.createElement('div');
-    grid.className = 'puzzle-grid';
-    const puzzlesOfDiff = PUZZLES.filter(p => p.diff === currentDiff);
-    puzzlesOfDiff.forEach((pz, i) => {
-      const key = progressKey(pz.diff, pz.idx);
-      const prog = PROGRESS[key];
-      const btn = document.createElement('button');
-      btn.className = 'pz-btn' + (prog?.cleared ? ' cleared' : prog ? ' in-progress' : '');
-      const timeStr = prog?.cleared && prog.time
-        ? (() => { const m=Math.floor(prog.time/60),s=prog.time%60; return m+':'+String(s).padStart(2,'0'); })()
-        : '';
-      btn.innerHTML = `
-        <span class="pz-num">${String(i+1).padStart(2,'0')}</span>
-        <span class="pz-status">${prog?.cleared ? timeStr : prog ? '途中' : ''}</span>
-        ${prog?.cleared ? '<span class="pz-check">✓</span>' : ''}
-      `;
-      btn.addEventListener('click', () => startGame(pz.diff, pz.idx));
-      grid.appendChild(btn);
-    });
-    body.appendChild(grid);
+    return;
   }
+
+  // 体験版：既存の5問レイアウト
+  const grid = document.createElement('div');
+  grid.className = 'puzzle-grid';
+  const puzzlesOfDiff = PUZZLES.filter(p => p.diff === currentDiff);
+  puzzlesOfDiff.forEach((pz, i) => {
+    const key = progressKey(pz.diff, pz.idx);
+    const prog = PROGRESS[key];
+    const btn = document.createElement('button');
+    btn.className = 'pz-btn' + (prog?.cleared ? ' cleared' : prog ? ' in-progress' : '');
+    const timeStr = prog?.cleared && prog.time
+      ? (() => { const m=Math.floor(prog.time/60),s=prog.time%60; return m+':'+String(s).padStart(2,'0'); })()
+      : '';
+    btn.innerHTML = `
+      <span class="pz-num">${String(i+1).padStart(2,'0')}</span>
+      <span class="pz-status">${prog?.cleared ? timeStr : prog ? '途中' : ''}</span>
+      ${prog?.cleared ? '<span class="pz-check">✓</span>' : ''}
+    `;
+    btn.addEventListener('click', () => startGame(pz.diff, pz.idx));
+    grid.appendChild(btn);
+  });
+  body.appendChild(grid);
 }
 
-document.getElementById('lhBack').addEventListener('click', () => showDiffScreen());
+function renderSetButtons() {
+  document.getElementById('listDiffTitle').textContent = DIFF_NAMES[currentDiff];
+  const body = document.getElementById('listBody');
+  body.innerHTML = '';
+  const list = document.createElement('div');
+  list.className = 'set-btn-list';
+  for (let s = 0; s < 5; s++) {
+    const purchased = isPurchasedSet(currentDiff, s);
+    const btn = document.createElement('button');
+    btn.className = 'set-btn' + (purchased ? ' purchased' : '');
+    btn.innerHTML = `
+      <div class="set-btn-left">
+        <span class="set-btn-vol">Vol.${s + 1}</span>
+        <span class="set-btn-range">問題 ${s * 100 + 1}〜${(s + 1) * 100}</span>
+      </div>
+      <div class="set-btn-right">
+        ${purchased
+          ? '<span class="set-btn-badge-purchased">購入済</span>'
+          : '<span class="set-btn-badge-locked">¥100</span>'}
+      </div>
+    `;
+    btn.addEventListener('click', () => {
+      if (purchased) {
+        currentSetIdx = s;
+        const setData = buildNormalPuzzlesForSet(currentDiff, s);
+        PUZZLES = PUZZLES.filter(p => !(p.diff === currentDiff && p.setIdx === s)).concat(setData);
+        renderListBody();
+      } else {
+        showPurchaseModal(currentDiff, s);
+      }
+    });
+    list.appendChild(btn);
+  }
+  body.appendChild(list);
+}
+
+function showPurchaseModal(diff, setIdx) {
+  document.getElementById('purchaseModalTitle').textContent = `Vol.${setIdx + 1} を購入`;
+  document.getElementById('purchaseModalBody').innerHTML =
+    `<strong>${DIFF_NAMES[diff]}　Vol.${setIdx + 1}</strong><br>問題${setIdx * 100 + 1}〜${(setIdx + 1) * 100}（100問）<br><br>¥100 で購入しますか？`;
+  const modal = document.getElementById('purchaseModal');
+  modal.classList.add('show');
+  document.getElementById('purchaseCancelBtn').onclick = () => modal.classList.remove('show');
+  document.getElementById('purchaseOkBtn').onclick = () => {
+    modal.classList.remove('show');
+    // 購入完了をシミュレート（Stripe連携時はここをStripe Payment Linkに差し替え）
+    const url = new URL(window.location.href);
+    url.searchParams.set('nanpure_paid', `d${diff}s${setIdx}`);
+    window.location.href = url.toString();
+  };
+}
+
+document.getElementById('lhBack').addEventListener('click', () => {
+  if (currentMode === 'normal' && currentSetIdx >= 0) {
+    currentSetIdx = -1;
+    renderListBody();
+  } else {
+    showDiffScreen();
+  }
+});
 
 // ════════════════════════════════════════
 // GAME SCREEN
@@ -822,14 +947,21 @@ let puzzle, solution, userGrid, memoGrid, selected, errorCount, timerSec, timerI
 let currentPuzzleDiff, currentPuzzleIdx;
 
 function startGame(diff, idx) {
-  const pz = PUZZLES.find(p => p.diff === diff && p.idx === idx);
+  let pz;
+  if (currentMode === 'normal') {
+    pz = PUZZLES.find(p => p.diff === diff && p.setIdx === currentSetIdx && p.idx === idx);
+  } else {
+    pz = PUZZLES.find(p => p.diff === diff && p.idx === idx);
+  }
   currentPuzzleDiff = diff;
   currentPuzzleIdx = idx;
   puzzle = pz.puzzle;
   solution = pz.solution;
 
   // restore or fresh
-  const key = progressKey(diff, idx);
+  const key = currentMode === 'normal'
+    ? progressKeyNormal(diff, currentSetIdx, idx)
+    : progressKey(diff, idx);
   const prog = PROGRESS[key];
 
   if (prog && !prog.cleared && prog.userGrid) {
@@ -882,7 +1014,9 @@ function startGame(diff, idx) {
 }
 
 function autoSave() {
-  const key = progressKey(currentPuzzleDiff, currentPuzzleIdx);
+  const key = currentMode === 'normal'
+    ? progressKeyNormal(currentPuzzleDiff, currentSetIdx, currentPuzzleIdx)
+    : progressKey(currentPuzzleDiff, currentPuzzleIdx);
   if (!PROGRESS[key]) PROGRESS[key] = {};
   if (!PROGRESS[key].cleared) {
     PROGRESS[key].userGrid = userGrid.map(r => [...r]);
@@ -896,16 +1030,21 @@ function autoSave() {
 function goList() {
   clearInterval(timerInt);
   document.getElementById('winOverlay').classList.remove('show');
-  showListScreen(currentPuzzleDiff);
+  if (currentMode === 'normal') {
+    // セットの問題グリッドへ戻る
+    showScreen('scr-list');
+    renderListBody();
+  } else {
+    showListScreen(currentPuzzleDiff);
+  }
 }
 
 function playNext() {
   document.getElementById('winOverlay').classList.remove('show');
   if (currentMode === 'normal') {
-    // 通常版：同じ難易度の次の未クリア問題を探す（100問の中から）
-    const maxIdx = 99;
-    for (let i = currentPuzzleIdx + 1; i <= maxIdx; i++) {
-      if (!PROGRESS[progressKey(currentPuzzleDiff, i)]?.cleared) {
+    // 通常版：同じセット内の次の未クリア問題
+    for (let i = currentPuzzleIdx + 1; i < 100; i++) {
+      if (!PROGRESS[progressKeyNormal(currentPuzzleDiff, currentSetIdx, i)]?.cleared) {
         startGame(currentPuzzleDiff, i);
         return;
       }
@@ -1195,7 +1334,9 @@ function checkWin() {
     if (userGrid[r][c] !== solution[r][c]) return;
   clearInterval(timerInt);
   // save as cleared
-  const key = progressKey(currentPuzzleDiff, currentPuzzleIdx);
+  const key = currentMode === 'normal'
+    ? progressKeyNormal(currentPuzzleDiff, currentSetIdx, currentPuzzleIdx)
+    : progressKey(currentPuzzleDiff, currentPuzzleIdx);
   PROGRESS[key] = { cleared: true, time: timerSec, errors: errorCount };
   saveProgress();
   // show win overlay
@@ -1204,10 +1345,10 @@ function checkWin() {
   // hide "次の問題" if no more
   let hasNext;
   if (currentMode === 'normal') {
-    // 同じ難易度の残りを確認
+    // 同じセット内の残りを確認
     hasNext = false;
     for (let i = currentPuzzleIdx + 1; i < 100; i++) {
-      if (!PROGRESS[progressKey(currentPuzzleDiff, i)]?.cleared) { hasNext = true; break; }
+      if (!PROGRESS[progressKeyNormal(currentPuzzleDiff, currentSetIdx, i)]?.cleared) { hasNext = true; break; }
     }
   } else {
     hasNext = PUZZLES.some(p => !PROGRESS[progressKey(p.diff, p.idx)]?.cleared);
