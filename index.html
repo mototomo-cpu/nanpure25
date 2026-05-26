@@ -362,8 +362,8 @@ body {
       <span class="op-logo-sub">S I M P L E  N A N P U R E  1 0 0</span>
     </div>
     <div class="op-date" id="opDate"></div>
-    <button class="op-start-btn" id="opStartBtn">体験版を遊ぶ</button>
-    <button class="op-start-btn-sub" id="opNormalBtn">通常版を遊ぶ</button>
+    <button class="op-start-btn" id="opStartBtn">体験版</button>
+    <button class="op-start-btn-sub" id="opNormalBtn">通常版</button>
   </div>
 
   <!-- ════ DIFF SELECT ════ -->
@@ -612,7 +612,7 @@ function saveProgress() {
 // PURCHASE / LICENSE
 // ════════════════════════════════════════
 // ★ Stripe Payment LinkのURLをここに設定してください
-const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/XXXXXXXXXXXXXXXX';
+const STRIPE_PAYMENT_LINK = 'https://gentle-genie-82635d.netlify.app/?nanpure_paid=1';
 
 function isPurchased() {
   return localStorage.getItem('nanpure100_purchased') === 'true';
@@ -636,10 +636,10 @@ function updateNormalBtn() {
   const btn = document.getElementById('opNormalBtn');
   if (isPurchased()) {
     btn.classList.remove('locked');
-    btn.innerHTML = '通常版を遊ぶ';
+    btn.innerHTML = '通常版';
   } else {
     btn.classList.add('locked');
-    btn.innerHTML = '🔒 通常版を遊ぶ <span class="op-price-badge">¥100</span>';
+    btn.innerHTML = '🔒 通常版 <span class="op-price-badge">¥100</span>';
   }
 }
 
