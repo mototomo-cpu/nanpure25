@@ -304,7 +304,7 @@ body {
   text-align: center; font-size: 13px; color: #888; margin-bottom: 0.3rem; min-height: 18px;
   letter-spacing: 0.05em;
 }
-.numpad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-bottom: 0.4rem; }
+.numpad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
 .num-btn {
   padding: 16px 4px; font-size: 40px; font-weight: 400; border-radius: 8px;
   border: 1.5px solid #e0ddd8; background: #fff; color: #1a1a1a;
@@ -314,7 +314,7 @@ body {
 .num-btn:hover { background: #f0ede8; }
 .num-btn.erase-btn { font-size: 13px; color: #aaa; font-family: 'Noto Serif JP', serif; }
 .num-btn.completed { background: #f0f0f0 !important; color: #ccc !important; border-color: #e8e8e8 !important; cursor: default; text-decoration: line-through; }
-.action-row { display: flex; gap: 6px; }
+.action-row { display: flex; gap: 6px; margin-bottom: 0.4rem; }
 .action-btn {
   flex: 1; padding: 9px 4px; font-size: 12px; border-radius: 8px;
   border: 1.5px solid #e0ddd8; background: #fff; color: #444;
@@ -468,12 +468,12 @@ body {
       </div>
       <div class="board-wrap"><div class="board" id="board"></div></div>
       <div class="msg-bar" id="msgBar"></div>
-      <div class="numpad" id="numpad"></div>
       <div class="action-row">
         <button class="action-btn" id="btnUndo" onclick="undo()">↩ 戻す</button>
         <button class="action-btn" id="btnMemo" onclick="toggleMemo()">✏️ メモ</button>
         <button class="action-btn" id="btnHint" onclick="hint()">ヒント</button>
       </div>
+      <div class="numpad" id="numpad"></div>
     </div>
   </div>
 
