@@ -1,4 +1,4 @@
-const CACHE = 'nanpure25-v7';
+const CACHE = 'nanpure25-v8';
 const ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', e => {
