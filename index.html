@@ -295,8 +295,9 @@ body {
 .cell.same-num { background: #e3f0fd !important; }
 .cell.row-hl { background: #f4f2ef; }
 .cell.box-hl { background: #f0ede8; }
-.cell.br { border-right: 2px solid #444; }
-.cell.bb { border-bottom: 2px solid #444; }
+.cell.br { box-shadow: inset -2px 0 0 0 #444; }
+.cell.bb { box-shadow: inset 0 -2px 0 0 #444; }
+.cell.br.bb { box-shadow: inset -2px 0 0 0 #444, inset 0 -2px 0 0 #444; }
 .memo-g { position: absolute; inset: 1px; display: grid; grid-template-columns: repeat(3,1fr); grid-template-rows: repeat(3,1fr); pointer-events: none; }
 .memo-n { display: flex; align-items: center; justify-content: center; font-size: 16px; font-family: 'DM Mono', monospace; color: #bbb; line-height: 1; }
 .memo-n.on { color: #185FA5; }
