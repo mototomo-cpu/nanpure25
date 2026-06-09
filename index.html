@@ -1055,6 +1055,8 @@ function startGame(diff, idx) {
   memoMode = false;
   document.getElementById('btnMemo').classList.remove('memo-on');
   document.getElementById('winOverlay').classList.remove('show');
+  document.getElementById('winContent').style.opacity = '0';
+  document.getElementById('fireworksCanvas').style.opacity = '0';
 
   // header
   document.getElementById('ghTitle').textContent = `難易度${diff}　${DIFF_NAMES[diff]}`;
