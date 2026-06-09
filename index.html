@@ -274,11 +274,11 @@ body {
 .stat { flex: 1; background: #fff; border: 1px solid #e8e5e0; border-radius: 8px; padding: 6px; text-align: center; }
 .stat-label { font-size: 9px; color: #bbb; margin-bottom: 1px; }
 .stat-val { font-size: 14px; font-weight: 400; color: #1a1a1a; font-family: 'DM Mono', monospace; }
-.board-wrap { display: flex; justify-content: center; margin-bottom: 0.4rem; }
+.board-wrap { flex: 1; min-height: 0; display: flex; justify-content: center; align-items: center; margin-bottom: 0.4rem; overflow: hidden; }
 .board {
   display: grid; grid-template-columns: repeat(9, 1fr);
   border: 2px solid #444; border-radius: 0; overflow: hidden;
-  width: min(100%, calc(100dvh - 300px)); aspect-ratio: 1;
+  aspect-ratio: 1; max-height: 100%; max-width: 100%; width: auto;
 }
 .cell {
   display: flex; align-items: center; justify-content: center;
