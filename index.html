@@ -1250,8 +1250,9 @@ function showPraise(r, c) {
   const words = ['Cool', 'Perfect', 'Excellent', 'Great'];
   el.className = 'praise-pop';
   el.textContent = words[Math.floor(Math.random() * words.length)];
-  el.style.left = (rect.left + rect.width / 2 - 11) + 'px';
-  el.style.top  = (rect.top  + rect.height / 2 - 11) + 'px';
+  el.style.left = (rect.left + rect.width / 2) + 'px';
+  el.style.top  = (rect.top  + rect.height / 2) + 'px';
+  el.style.transform = 'translateX(-50%)';
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 1000);
 }
