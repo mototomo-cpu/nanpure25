@@ -327,6 +327,18 @@ body {
 .action-btn:hover { background: #f0ede8; }
 .action-btn.memo-on { background: #1a1a1a !important; color: #fff !important; border-color: #1a1a1a !important; }
 
+/* ── Praise pop ── */
+.praise-pop {
+  position: fixed; pointer-events: none; z-index: 200;
+  font-size: 22px; color: #185FA5; font-weight: bold;
+  animation: praiseFloat 1s ease-out forwards;
+}
+@keyframes praiseFloat {
+  0%   { opacity: 1; transform: translateY(0) scale(1); }
+  60%  { opacity: 1; transform: translateY(-24px) scale(1.3); }
+  100% { opacity: 0; transform: translateY(-44px) scale(1.1); }
+}
+
 /* ── Win overlay ── */
 .win-overlay {
   position: fixed; inset: 0; background: #050514;
@@ -1213,6 +1225,18 @@ function launchFireworks() {
   animate();
 }
 
+function showPraise(r, c) {
+  const cells = document.getElementById('board').querySelectorAll('.cell');
+  const rect = cells[r * 9 + c].getBoundingClientRect();
+  const el = document.createElement('div');
+  el.className = 'praise-pop';
+  el.textContent = '✓';
+  el.style.left = (rect.left + rect.width / 2 - 11) + 'px';
+  el.style.top  = (rect.top  + rect.height / 2 - 11) + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
 function updateTimer() {
   const m = Math.floor(timerSec/60), s = timerSec%60;
   document.getElementById('timer').textContent = m + ':' + String(s).padStart(2,'0');
@@ -1318,6 +1342,8 @@ function inputNum(n) {
     if (n !== solution[r][c]) {
       errorCount++;
       document.getElementById('errors').textContent = errorCount;
+    } else {
+      showPraise(r, c);
     }
   }
   renderBoard(); updateRemaining(); updateNumpad(); checkWin();
