@@ -256,7 +256,7 @@ body {
 /* ════════════════════════════════
    GAME SCREEN
 ════════════════════════════════ */
-#scr-game { background: #f7f6f3; height: 100dvh; overflow: hidden; }
+#scr-game { background: #f7f6f3; height: 100dvh; min-height: 0; overflow: hidden; }
 .game-header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 0.75rem 1rem 0.5rem;
@@ -269,7 +269,7 @@ body {
 }
 .gh-title { font-size: 14px; font-weight: 300; letter-spacing: 0.1em; color: #555; }
 .gh-pager { font-size: 12px; font-family: 'DM Mono', monospace; color: #bbb; }
-.game-body { padding: 0.4rem 0; flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.game-body { padding: 0.4rem 0; flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
 .stats-row { display: flex; gap: 6px; margin-bottom: 0.4rem; }
 .stat { flex: 1; background: #fff; border: 1px solid #e8e5e0; border-radius: 8px; padding: 6px; text-align: center; }
 .stat-label { font-size: 9px; color: #bbb; margin-bottom: 1px; }
