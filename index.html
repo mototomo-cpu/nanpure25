@@ -274,11 +274,11 @@ body {
 .stat { flex: 1; background: #fff; border: 1px solid #e8e5e0; border-radius: 8px; padding: 6px; text-align: center; }
 .stat-label { font-size: 9px; color: #bbb; margin-bottom: 1px; }
 .stat-val { font-size: 14px; font-weight: 400; color: #1a1a1a; font-family: 'DM Mono', monospace; }
-.board-wrap { flex: 1; min-height: 0; display: flex; justify-content: center; align-items: center; margin-bottom: 0.4rem; overflow: hidden; }
+.board-wrap { display: flex; justify-content: center; align-items: center; margin-bottom: 0.4rem; }
 .board {
   display: grid; grid-template-columns: repeat(9, 1fr);
   border: 2px solid #444; border-radius: 0; overflow: hidden;
-  aspect-ratio: 1; max-height: 100%; max-width: 100%; width: auto;
+  aspect-ratio: 1;
 }
 .cell {
   display: flex; align-items: center; justify-content: center;
@@ -947,6 +947,32 @@ document.getElementById('lhBack').addEventListener('click', () => {
 });
 
 // ════════════════════════════════════════
+// BOARD RESIZE
+// ════════════════════════════════════════
+function resizeBoard() {
+  const scr = document.getElementById('scr-game');
+  const board = document.getElementById('board');
+  const boardWrap = document.querySelector('.board-wrap');
+  if (!scr || !board || !boardWrap) return;
+
+  const scrH = scr.clientHeight;
+  const headerH = (document.querySelector('.game-header') || {offsetHeight:0}).offsetHeight;
+  const statsH  = (document.querySelector('.stats-row')   || {offsetHeight:0}).offsetHeight;
+  const msgH    = (document.getElementById('msgBar')      || {offsetHeight:0}).offsetHeight;
+  const actionH = (document.querySelector('.action-row')  || {offsetHeight:0}).offsetHeight;
+  const numpadH = (document.getElementById('numpad')      || {offsetHeight:0}).offsetHeight;
+
+  const margins = 40;
+  const availH = scrH - headerH - statsH - msgH - actionH - numpadH - margins;
+  const availW = boardWrap.clientWidth;
+  const size = Math.max(50, Math.min(availH, availW));
+
+  board.style.width  = size + 'px';
+  board.style.height = size + 'px';
+}
+window.addEventListener('resize', resizeBoard);
+
+// ════════════════════════════════════════
 // GAME SCREEN
 // ════════════════════════════════════════
 let puzzle, solution, userGrid, memoGrid, selected, errorCount, timerSec, timerInt, memoMode;
@@ -1017,6 +1043,7 @@ function startGame(diff, idx) {
   updateNumpad();
   updateRemaining();
   document.getElementById('msgBar').textContent = '';
+  requestAnimationFrame(resizeBoard);
 }
 
 function autoSave() {
