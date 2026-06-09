@@ -334,9 +334,9 @@ body {
   animation: praiseFloat 1s ease-out forwards;
 }
 @keyframes praiseFloat {
-  0%   { opacity: 1; transform: translateY(0) scale(1); }
-  60%  { opacity: 1; transform: translateY(-24px) scale(1.3); }
-  100% { opacity: 0; transform: translateY(-44px) scale(1.1); }
+  0%   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+  60%  { opacity: 1; transform: translateX(-50%) translateY(-24px) scale(1.3); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-44px) scale(1.1); }
 }
 
 /* ── Win overlay ── */
@@ -1252,7 +1252,6 @@ function showPraise(r, c) {
   el.textContent = words[Math.floor(Math.random() * words.length)];
   el.style.left = (rect.left + rect.width / 2) + 'px';
   el.style.top  = (rect.top  + rect.height / 2) + 'px';
-  el.style.transform = 'translateX(-50%)';
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 1000);
 }
