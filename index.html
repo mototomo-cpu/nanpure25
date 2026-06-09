@@ -269,7 +269,7 @@ body {
 }
 .gh-title { font-size: 14px; font-weight: 300; letter-spacing: 0.1em; color: #555; }
 .gh-pager { font-size: 12px; font-family: 'DM Mono', monospace; color: #bbb; }
-.game-body { padding: 0.4rem 0; flex: 1; display: flex; flex-direction: column; }
+.game-body { padding: 0.4rem 0; flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .stats-row { display: flex; gap: 6px; margin-bottom: 0.4rem; }
 .stat { flex: 1; background: #fff; border: 1px solid #e8e5e0; border-radius: 8px; padding: 6px; text-align: center; }
 .stat-label { font-size: 9px; color: #bbb; margin-bottom: 1px; }
@@ -278,7 +278,7 @@ body {
 .board {
   display: grid; grid-template-columns: repeat(9, 1fr);
   border: 2px solid #444; border-radius: 0; overflow: hidden;
-  width: 100%; aspect-ratio: 1;
+  width: min(100%, 52vh); aspect-ratio: 1;
 }
 .cell {
   display: flex; align-items: center; justify-content: center;
