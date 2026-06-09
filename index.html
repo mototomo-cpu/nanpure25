@@ -976,6 +976,21 @@ window.addEventListener('resize', resizeBoard);
 // GAME SCREEN
 // ════════════════════════════════════════
 let puzzle, solution, userGrid, memoGrid, selected, errorCount, timerSec, timerInt, memoMode;
+let hardCells = new Set();
+
+function computeHardCells(puz) {
+  hardCells = new Set();
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      if (puz[r][c] !== 0) continue;
+      let count = 0;
+      for (let n = 1; n <= 9; n++) {
+        if (isValid(puz, r, c, n)) count++;
+      }
+      if (count >= 3) hardCells.add(r * 9 + c);
+    }
+  }
+}
 let currentPuzzleDiff, currentPuzzleIdx;
 
 function startGame(diff, idx) {
@@ -989,6 +1004,7 @@ function startGame(diff, idx) {
   currentPuzzleIdx = idx;
   puzzle = pz.puzzle;
   solution = pz.solution;
+  computeHardCells(puzzle);
 
   // restore or fresh
   const key = currentMode === 'normal'
@@ -1342,7 +1358,7 @@ function inputNum(n) {
     if (n !== solution[r][c]) {
       errorCount++;
       document.getElementById('errors').textContent = errorCount;
-    } else {
+    } else if (hardCells.has(r * 9 + c)) {
       showPraise(r, c);
     }
   }
