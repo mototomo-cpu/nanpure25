@@ -1441,16 +1441,18 @@ function hint() {
       }
     }
   }
-  // 該当なし：従来通りランダムで1マス埋める
-  const empties = [];
-  for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++)
-    if (userGrid[r][c] === 0 || userGrid[r][c] !== solution[r][c]) empties.push([r,c]);
-  if (!empties.length) return;
-  const [r, c] = empties[Math.floor(Math.random() * empties.length)];
-  selected = [r, c];
-  userGrid[r][c] = solution[r][c];
-  memoGrid[r][c].clear();
-  renderBoard(); updateRemaining(); checkWin();
+  // 該当なし：全空きマスのメモを候補で埋める
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      if (userGrid[r][c] !== 0) continue;
+      memoGrid[r][c].clear();
+      for (let n = 1; n <= 9; n++) {
+        if (isValid(userGrid, r, c, n)) memoGrid[r][c].add(n);
+      }
+    }
+  }
+  document.getElementById('msgBar').textContent = '全マスのメモを埋めました';
+  renderBoard();
 }
 
 function checkWin() {
