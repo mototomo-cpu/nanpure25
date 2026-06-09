@@ -965,8 +965,10 @@ document.getElementById('lhBack').addEventListener('click', () => {
 // ════════════════════════════════════════
 function resizeBoard() {
   const board = document.getElementById('board');
-  if (!board) return;
-  const size = Math.min(window.innerWidth - 8, Math.floor(window.innerHeight * 0.55));
+  const wrap = document.querySelector('.board-wrap');
+  if (!board || !wrap) return;
+  const maxW = wrap.clientWidth;
+  const size = Math.min(maxW, Math.floor(window.innerHeight * 0.55));
   const cs = Math.floor(size / 9);
   board.style.setProperty('--cs', cs + 'px');
 }
