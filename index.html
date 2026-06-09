@@ -1247,8 +1247,9 @@ function showPraise(r, c) {
   const cells = document.getElementById('board').querySelectorAll('.cell');
   const rect = cells[r * 9 + c].getBoundingClientRect();
   const el = document.createElement('div');
+  const words = ['Cool', 'Perfect', 'Excellent', 'Great'];
   el.className = 'praise-pop';
-  el.textContent = '✓';
+  el.textContent = words[Math.floor(Math.random() * words.length)];
   el.style.left = (rect.left + rect.width / 2 - 11) + 'px';
   el.style.top  = (rect.top  + rect.height / 2 - 11) + 'px';
   document.body.appendChild(el);
