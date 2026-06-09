@@ -1425,6 +1425,23 @@ function undo() {
 }
 
 function hint() {
+  // まず候補が1個だけのマス（ネイキッドシングル）を探す
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      if (userGrid[r][c] !== 0) continue;
+      const cands = [];
+      for (let n = 1; n <= 9; n++) {
+        if (isValid(userGrid, r, c, n)) cands.push(n);
+      }
+      if (cands.length === 1) {
+        selected = [r, c];
+        document.getElementById('msgBar').textContent = `このマスには ${cands[0]} しか入りません`;
+        renderBoard();
+        return;
+      }
+    }
+  }
+  // 該当なし：従来通りランダムで1マス埋める
   const empties = [];
   for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++)
     if (userGrid[r][c] === 0 || userGrid[r][c] !== solution[r][c]) empties.push([r,c]);
