@@ -950,22 +950,21 @@ document.getElementById('lhBack').addEventListener('click', () => {
 // BOARD RESIZE
 // ════════════════════════════════════════
 function resizeBoard() {
-  const scr = document.getElementById('scr-game');
   const board = document.getElementById('board');
   const boardWrap = document.querySelector('.board-wrap');
-  if (!scr || !board || !boardWrap) return;
+  if (!board || !boardWrap) return;
 
-  const scrH = scr.clientHeight;
+  const viewH = window.innerHeight;
   const headerH = (document.querySelector('.game-header') || {offsetHeight:0}).offsetHeight;
   const statsH  = (document.querySelector('.stats-row')   || {offsetHeight:0}).offsetHeight;
-  const msgH    = (document.getElementById('msgBar')      || {offsetHeight:0}).offsetHeight;
+  const msgH    = Math.max(18, (document.getElementById('msgBar') || {offsetHeight:0}).offsetHeight);
   const actionH = (document.querySelector('.action-row')  || {offsetHeight:0}).offsetHeight;
   const numpadH = (document.getElementById('numpad')      || {offsetHeight:0}).offsetHeight;
 
-  const margins = 40;
-  const availH = scrH - headerH - statsH - msgH - actionH - numpadH - margins;
+  const margins = 48;
+  const availH = viewH - headerH - statsH - msgH - actionH - numpadH - margins;
   const availW = boardWrap.clientWidth;
-  const size = Math.max(50, Math.min(availH, availW));
+  const size = Math.max(100, Math.min(availH, availW));
 
   board.style.width  = size + 'px';
   board.style.height = size + 'px';
@@ -1043,7 +1042,7 @@ function startGame(diff, idx) {
   updateNumpad();
   updateRemaining();
   document.getElementById('msgBar').textContent = '';
-  requestAnimationFrame(resizeBoard);
+  setTimeout(resizeBoard, 50);
 }
 
 function autoSave() {
