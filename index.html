@@ -951,21 +951,8 @@ document.getElementById('lhBack').addEventListener('click', () => {
 // ════════════════════════════════════════
 function resizeBoard() {
   const board = document.getElementById('board');
-  const boardWrap = document.querySelector('.board-wrap');
-  if (!board || !boardWrap) return;
-
-  const viewH = window.innerHeight;
-  const headerH = (document.querySelector('.game-header') || {offsetHeight:0}).offsetHeight;
-  const statsH  = (document.querySelector('.stats-row')   || {offsetHeight:0}).offsetHeight;
-  const msgH    = Math.max(18, (document.getElementById('msgBar') || {offsetHeight:0}).offsetHeight);
-  const actionH = (document.querySelector('.action-row')  || {offsetHeight:0}).offsetHeight;
-  const numpadH = (document.getElementById('numpad')      || {offsetHeight:0}).offsetHeight;
-
-  const margins = 48;
-  const availH = viewH - headerH - statsH - msgH - actionH - numpadH - margins;
-  const availW = boardWrap.clientWidth;
-  const size = Math.max(100, Math.min(availH, availW));
-
+  if (!board) return;
+  const size = Math.min(window.innerWidth - 8, Math.floor(window.innerHeight * 0.55));
   board.style.width  = size + 'px';
   board.style.height = size + 'px';
 }
