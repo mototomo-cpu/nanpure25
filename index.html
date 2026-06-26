@@ -303,9 +303,31 @@ body {
 .memo-g { position: absolute; inset: 1px; display: grid; grid-template-columns: repeat(3,1fr); grid-template-rows: repeat(3,1fr); pointer-events: none; }
 .memo-n { display: flex; align-items: center; justify-content: center; font-size: calc(var(--cs, 42px) * 0.30); font-family: 'DM Mono', monospace; color: #bbb; line-height: 1; }
 .memo-n.on { color: #185FA5; }
-.msg-bar {
-  text-align: center; font-size: 13px; color: #888; margin-bottom: 0.3rem; min-height: 18px;
-  letter-spacing: 0.05em;
+.msg-bar { display: none; }
+
+/* ── Hint popup (bottom sheet) ── */
+.hint-popup {
+  display: none;
+  position: fixed; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 480px; z-index: 20;
+}
+.hint-popup.show {
+  display: flex; animation: hintSlideIn 0.25s cubic-bezier(0.22,1,0.36,1);
+}
+@keyframes hintSlideIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.hint-popup-inner {
+  background: #fff; border-radius: 16px; flex: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 24px; text-align: center;
+  font-size: 17px; letter-spacing: 0.04em; line-height: 1.9; color: #1a1a1a;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+}
+.hint-popup-inner em {
+  font-style: normal; color: #185FA5;
+  font-family: 'DM Mono', monospace; font-size: 24px; font-weight: 500;
 }
 .numpad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
 .num-btn {
@@ -500,6 +522,7 @@ body {
       </div>
       <div class="board-wrap"><div class="board" id="board"></div></div>
       <div class="msg-bar" id="msgBar"></div>
+      <div class="hint-popup" id="hintPopup"><div class="hint-popup-inner" id="hintPopupText"></div></div>
       <div class="action-row">
         <button class="action-btn" id="btnUndo" onclick="undo()">↩ 戻す</button>
         <button class="action-btn" id="btnMemo" onclick="toggleMemo()">✏️ メモ</button>
@@ -1080,6 +1103,8 @@ function startGame(diff, idx) {
   updateNumpad();
   updateRemaining();
   document.getElementById('msgBar').textContent = '';
+  clearTimeout(hintPopupTimer);
+  document.getElementById('hintPopup').classList.remove('show');
   setTimeout(resizeBoard, 50);
 }
 
@@ -1437,6 +1462,21 @@ function getCandidates(r, c) {
   return [1,2,3,4,5,6,7,8,9].filter(n => !used.has(n));
 }
 
+let hintPopupTimer = null;
+function showHintPopup(html, duration = 3000) {
+  const popup = document.getElementById('hintPopup');
+  document.getElementById('hintPopupText').innerHTML = html;
+  const actionRow = document.querySelector('.action-row');
+  const numpad = document.getElementById('numpad');
+  const rect1 = actionRow.getBoundingClientRect();
+  const rect2 = numpad.getBoundingClientRect();
+  popup.style.top = rect1.top + 'px';
+  popup.style.height = (rect2.bottom - rect1.top) + 'px';
+  popup.classList.add('show');
+  clearTimeout(hintPopupTimer);
+  if (duration > 0) hintPopupTimer = setTimeout(() => popup.classList.remove('show'), duration);
+}
+
 function hint() {
   // ステップ1: 候補が1個だけのマス（ネイキッドシングル）を強調
   for (let r = 0; r < 9; r++) {
@@ -1445,7 +1485,7 @@ function hint() {
       const cands = getCandidates(r, c);
       if (cands.length === 1) {
         selected = [r, c];
-        document.getElementById('msgBar').textContent = `このマスには ${cands[0]} しか入りません`;
+        showHintPopup(`このマスには <em>${cands[0]}</em> しか入りません`);
         renderBoard();
         return;
       }
@@ -1462,7 +1502,7 @@ function hint() {
     if (userGrid[r][c] === 0 && memoGrid[r][c].size === 0) {
       const candidates = getCandidates(r, c);
       candidates.forEach(n => memoGrid[r][c].add(n));
-      document.getElementById('msgBar').textContent = `候補 ${candidates.length} 個を表示しました。もう一度押すと答えを入力します`;
+      showHintPopup(`候補 <em>${candidates.length}</em> 個を表示しました<br>もう一度押すと答えを入力します`);
       renderBoard();
       return;
     }
@@ -1473,7 +1513,7 @@ function hint() {
       for (let i = 0; i < 9; i++) { memoGrid[r][i].delete(n); memoGrid[i][c].delete(n); }
       const br = Math.floor(r/3)*3, bc = Math.floor(c/3)*3;
       for (let rr = br; rr < br+3; rr++) for (let cc = bc; cc < bc+3; cc++) memoGrid[rr][cc].delete(n);
-      document.getElementById('msgBar').textContent = 'ヒント：答えを入力しました';
+      showHintPopup(`答え <em>${n}</em> を入力しました`);
       renderBoard(); updateRemaining(); updateNumpad(); checkWin();
       return;
     }
@@ -1487,7 +1527,7 @@ function hint() {
       getCandidates(r, c).forEach(n => memoGrid[r][c].add(n));
     }
   }
-  document.getElementById('msgBar').textContent = '全マスのメモを修正・補完しました';
+  showHintPopup('全マスのメモを<br>修正・補完しました');
   renderBoard();
 }
 
